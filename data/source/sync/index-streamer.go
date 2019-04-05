@@ -28,6 +28,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/micro/go-micro/client"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/tree"
@@ -36,10 +37,12 @@ import (
 type IndexStreamer struct {
 	done chan bool
 
-	readIsOpen bool
-	readInput  chan *tree.ReadNodeRequest
-	readOutput chan *tree.ReadNodeResponse
-	readErrors chan error
+	readMutex        *sync.RWMutex
+	readClient       tree.NodeProviderStreamer_ReadNodeStreamClient
+	readClientErrors chan error
+	readInput        chan *tree.ReadNodeRequest
+	readOutput       chan *tree.ReadNodeResponse
+	readErrors       chan error
 
 	delIsOpen bool
 	delInput  chan *tree.DeleteNodeRequest
@@ -64,9 +67,11 @@ func NewIndexStreamer(serviceName string) *IndexStreamer {
 		serviceName: serviceName,
 		done:        make(chan bool, 1),
 
-		readInput:  make(chan *tree.ReadNodeRequest, 1),
-		readOutput: make(chan *tree.ReadNodeResponse, 1),
-		readErrors: make(chan error),
+		readMutex:        new(sync.RWMutex),
+		readClientErrors: make(chan error),
+		readInput:        make(chan *tree.ReadNodeRequest, 1),
+		readOutput:       make(chan *tree.ReadNodeResponse, 1),
+		readErrors:       make(chan error),
 
 		delInput:  make(chan *tree.DeleteNodeRequest, 1),
 		delOutput: make(chan *tree.DeleteNodeResponse, 1),
@@ -80,56 +85,90 @@ func NewIndexStreamer(serviceName string) *IndexStreamer {
 		updateOutput: make(chan *tree.UpdateNodeResponse, 1),
 		updateErrors: make(chan error),
 	}
+
+	i.StartReader(context.Background())
+
 	return i
 }
 
 func (i *IndexStreamer) Stop() {
 	i.done <- true
-	i.delIsOpen, i.createIsOpen, i.updateIsOpen, i.readIsOpen = false, false, false, false
+	i.delIsOpen, i.createIsOpen, i.updateIsOpen = false, false, false
 }
 
 func (i *IndexStreamer) StartReader(ctx context.Context) error {
+	i.readMutex.Lock()
 
-	//fmt.Println("Starting Reader for service " + i.serviceName)
 	reader := tree.NewNodeProviderStreamerClient(i.serviceName, defaults.NewClient())
-	streamer, err := reader.ReadNodeStream(ctx)
+	streamer, err := reader.ReadNodeStream(ctx, client.WithRequestTimeout(1*time.Hour))
 	if err != nil {
-		fmt.Println("Error starting for service "+i.serviceName, err)
-		i.readIsOpen = false
 		return err
 	}
-	i.readIsOpen = true
+
+	i.readMutex.Unlock()
+
+	i.readClient = streamer
 
 	go func() {
 		for {
-			select {
-			case readRequest := <-i.readInput:
-				e := streamer.Send(readRequest)
-				if e != nil {
-					log.Logger(ctx).Error("error in ReadStream - restart a new Reader", zap.Error(e))
-					// Error sending request, break, reconnect and requeue delete request
-					streamer.Close()
-					<-time.After(2 * time.Second)
-					if e := i.StartReader(ctx); e == nil {
-						i.readInput <- readRequest
-					}
-					return
-				} else {
-					if resp, e := streamer.Recv(); e != nil {
-						i.readErrors <- e
-					} else {
-
-						//if resp, ok := readResponse.(*tree.ReadNodeResponse); ok {
-						i.readOutput <- resp
-						//} else {
-						//i.readErrors <- readResponse.(error)
-						//}
-					}
-
+			for err := range i.readClientErrors {
+				fmt.Println(err)
+				if err == nil {
+					continue
 				}
-			case <-i.done:
-				streamer.Close()
-				return
+				if streamer != nil {
+					streamer.Close()
+				}
+				break
+			}
+
+			i.readMutex.Lock()
+
+			reader := tree.NewNodeProviderStreamerClient(i.serviceName, defaults.NewClient())
+			streamer, err := reader.ReadNodeStream(ctx, client.WithRequestTimeout(1*time.Hour))
+
+			if err != nil {
+				continue
+			}
+
+			i.readClient = streamer
+
+			i.readMutex.Unlock()
+		}
+	}()
+
+	go func() {
+		for readRequest := range i.readInput {
+			i.readMutex.RLock()
+
+			if err := i.readClient.Send(readRequest); err != nil {
+				i.readClientErrors <- err
+				continue
+			}
+			fmt.Println("Sent ", readRequest)
+
+			i.readMutex.RUnlock()
+		}
+	}()
+
+	go func() {
+		for {
+			var resp interface{}
+
+			if err := i.readClient.RecvMsg(&resp); err != nil {
+				fmt.Println("Error in response ", err)
+				i.readClientErrors <- err
+			}
+
+			fmt.Println("Received a message ", resp)
+
+			switch v := resp.(type) {
+			case error:
+				fmt.Println("Error ", v)
+				i.readErrors <- v
+			case *tree.ReadNodeResponse:
+				fmt.Println("Resp ", v)
+				i.readOutput <- v
 			}
 		}
 	}()
@@ -268,12 +307,6 @@ func (i *IndexStreamer) StartUpdater(ctx context.Context) error {
 }
 
 func (i *IndexStreamer) ReadNode(ctx context.Context, request *tree.ReadNodeRequest) (response *tree.ReadNodeResponse, err error) {
-
-	if !i.readIsOpen {
-		if e := i.StartReader(ctx); e != nil {
-			return nil, e
-		}
-	}
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)

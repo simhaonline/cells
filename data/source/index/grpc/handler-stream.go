@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pydio/cells/common/proto/tree"
 )
@@ -89,6 +90,8 @@ func (s *TreeServer) ReadNodeStream(ctx context.Context, stream tree.NodeProvide
 		err error
 		req *tree.ReadNodeRequest
 	)
+
+	fmt.Println("Starting stream here")
 	for {
 		req, err = stream.Recv()
 		if err != nil {
@@ -97,6 +100,7 @@ func (s *TreeServer) ReadNodeStream(ctx context.Context, stream tree.NodeProvide
 
 		rsp := &tree.ReadNodeResponse{}
 		err = s.ReadNode(ctx, req, rsp)
+		fmt.Println("Sending ", err, rsp)
 		if err != nil {
 			err = stream.SendMsg(err)
 		} else {
@@ -106,6 +110,8 @@ func (s *TreeServer) ReadNodeStream(ctx context.Context, stream tree.NodeProvide
 			break
 		}
 	}
+
+	fmt.Println("Closign stream here")
 
 	stream.Close()
 	return err

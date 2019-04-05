@@ -64,9 +64,10 @@ import fmt "fmt"
 import math "math"
 
 import (
+	context "context"
+
 	client "github.com/micro/go-micro/client"
 	server "github.com/micro/go-micro/server"
-	context "context"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -272,6 +273,7 @@ func (x *nodeProviderStreamerReadNodeStreamClient) SendMsg(m interface{}) error 
 }
 
 func (x *nodeProviderStreamerReadNodeStreamClient) RecvMsg(m interface{}) error {
+	fmt.Println("Receiving back shit ")
 	return x.stream.Recv(m)
 }
 
@@ -335,6 +337,7 @@ func (x *nodeProviderStreamerReadNodeStreamStream) Send(m *ReadNodeResponse) err
 }
 
 func (x *nodeProviderStreamerReadNodeStreamStream) Recv() (*ReadNodeRequest, error) {
+	fmt.Println("Receiving shit")
 	m := new(ReadNodeRequest)
 	if err := x.stream.Recv(m); err != nil {
 		return nil, err

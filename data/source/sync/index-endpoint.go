@@ -29,6 +29,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pborman/uuid"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	commonsync "github.com/pydio/cells/data/source/sync/lib/common"
@@ -90,7 +91,7 @@ func (i *IndexEndpoint) Watch(recursivePath string) (*commonsync.WatchObject, er
 func (i *IndexEndpoint) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
 
 	log.Logger(ctx).Debug("LoadNode ByPath" + path)
-	resp, e := i.readerClient.ReadNode(ctx, &tree.ReadNodeRequest{
+	resp, e := i.streamer.ReadNode(ctx, &tree.ReadNodeRequest{
 		Node: &tree.Node{
 			Path: path,
 		},
@@ -106,7 +107,7 @@ func (i *IndexEndpoint) LoadNode(ctx context.Context, path string, leaf ...bool)
 func (i *IndexEndpoint) LoadNodeByUuid(ctx context.Context, uuid string) (node *tree.Node, err error) {
 
 	log.Logger(ctx).Debug("LoadNode ByUuid " + uuid)
-	if resp, e := i.readerClient.ReadNode(ctx, &tree.ReadNodeRequest{
+	if resp, e := i.streamer.ReadNode(ctx, &tree.ReadNodeRequest{
 		Node: &tree.Node{
 			Uuid: uuid,
 		},
@@ -212,6 +213,6 @@ func NewIndexEndpoint(dsName string, reader tree.NodeProviderClient, writer tree
 		readerClient:  reader,
 		writerClient:  writer,
 		sessionClient: sessionClient,
-		//streamer:      NewIndexStreamer(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_INDEX_ + dsName),
+		streamer:      NewIndexStreamer(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_INDEX_ + dsName),
 	}
 }
