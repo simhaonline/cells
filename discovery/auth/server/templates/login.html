@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Please sign in to proceed</title>
+</head>
+<body>
+<p>
+    Please sign in to proceed.
+</p>
+
+<form action="/authpoc/login" method="POST">
+    <input type="hidden" name="challenge" value={{.Challenge}}>
+    <input type="text" name="email" placeholder="email@foobar.com">
+    <input type="password" name="password">
+    <input type="checkbox" name="remember">
+    <label for="remember">Remember me</label>
+    <input type="submit" value="Log in">
+</form>
+
+
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Please give your consent</title>
+</head>
+<body>
+
+    <h1>An application requests access to your data!</h1>
+    <form action="" method="POST">
+        <input type="hidden" name="challenge" value="{{.Challenge}}">
+
+        <p>Hi {{.User}}, application <strong>{{.Client.Name}}</strong> wants access resources on your behalf and to:</p>
+
+        {{range $scope := .RequestedScope}}
+            <input type="checkbox" id="scope" value="{{$scope}}" name="grant_scope" />
+            <label for="scope">{{$scope}} </label>
+            <br />
+        {{end}}
+
+        <p>
+            Do you want to be asked next time when this application wants to access your data? The application will
+            not be able to ask for more permissions without your consent.
+        </p>
+
+        <ul>
+            {{if .Client.PolicyURI}}
+                <li><a href={{.Client.PolicyURI}}>Policy</a></li>
+            {{end}}
+            {{if .Client.TermsOfServiceURI}}
+                <li><a href={{.Client.TermsOfServiceURI}}>Terms of Service</a></li>
+            {{end}}
+        </ul>
+        <p>
+            <input type="checkbox" id="remember" name="remember" value="1" >
+            <label for="remember">Do not ask me again</label>
+        </p>
+        <p>
+            <input type="submit" name="submit" value="Allow access">
+            <input type="submit" name="submit" value="Deny access">
+        </p>
+    </form>
+</body>
+</html>

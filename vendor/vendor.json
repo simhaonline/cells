@@ -1093,10 +1093,22 @@
 			"revisionTime": "2017-12-07T19:22:34Z"
 		},
 		{
-			"checksumSHA1": "fCYb5uWGf4zdE/Eoky8K87zjE2Y=",
+			"checksumSHA1": "cu7FIQ+RFK781zO2OrXxaUho7ks=",
+			"path": "github.com/go-openapi/runtime",
+			"revision": "41e24cc66d7af6af39eb9b5a6418e901bcdd333c",
+			"revisionTime": "2018-12-06T22:12:56Z"
+		},
+		{
+			"checksumSHA1": "ifOfKHIYHWT2OVXDoQCcI7cful8=",
+			"path": "github.com/go-openapi/runtime/client",
+			"revision": "41e24cc66d7af6af39eb9b5a6418e901bcdd333c",
+			"revisionTime": "2018-12-06T22:12:56Z"
+		},
+		{
+			"checksumSHA1": "cm0NpeRSoYZp3n7mQl/PRHK8SGI=",
 			"path": "github.com/go-openapi/spec",
-			"revision": "d8000b5bfbd1147255710505a27c735b6b2ae2ac",
-			"revisionTime": "2018-03-02T16:01:22Z"
+			"revision": "5b6cdde3200976e3ecceb2868706ee39b6aff3e4",
+			"revisionTime": "2018-12-01T18:10:35Z"
 		},
 		{
 			"checksumSHA1": "G485hoWWVtor/Wzn04gRMw5mFFM=",
@@ -1109,6 +1121,12 @@
 			"path": "github.com/go-openapi/swag",
 			"revision": "ceb469cb0fdf2d792f28d771bc05da6c606f55e5",
 			"revisionTime": "2018-03-02T19:28:43Z"
+		},
+		{
+			"checksumSHA1": "eEPvAg0L5gAyKWvRk9vknJQ2DnI=",
+			"path": "github.com/go-openapi/validate",
+			"revision": "d2eab7d93009e9215fc85b2faa2c2f2a98c2af48",
+			"revisionTime": "2018-10-07T00:21:36Z"
 		},
 		{
 			"checksumSHA1": "yg01DVQJjQgMeXf9C7Fpl2Yo5+Y=",
@@ -3193,6 +3211,42 @@
 			"path": "github.com/olekukonko/tablewriter",
 			"revision": "b8a9be070da40449e501c3c4730a889e42d87a9e",
 			"revisionTime": "2018-01-30T16:27:43Z"
+		},
+		{
+			"checksumSHA1": "zNTXCf8/efHJInYVRfr7YSLVDdk=",
+			"path": "github.com/ory/hydra/sdk/go/hydra/client",
+			"revision": "067e4983792e5527a9f024bda5255913fb2e4713",
+			"revisionTime": "2019-04-20T10:22:21Z"
+		},
+		{
+			"checksumSHA1": "c3Lp9XficBEuKA4V59hRVsQhppQ=",
+			"path": "github.com/ory/hydra/sdk/go/hydra/client/admin",
+			"revision": "067e4983792e5527a9f024bda5255913fb2e4713",
+			"revisionTime": "2019-04-20T10:22:21Z"
+		},
+		{
+			"checksumSHA1": "qYw8vxuEYRrfhBhxH6gykG+gY9Y=",
+			"path": "github.com/ory/hydra/sdk/go/hydra/client/health",
+			"revision": "067e4983792e5527a9f024bda5255913fb2e4713",
+			"revisionTime": "2019-04-20T10:22:21Z"
+		},
+		{
+			"checksumSHA1": "xif1i2mGozgaGZbJUeMpBPSEnXE=",
+			"path": "github.com/ory/hydra/sdk/go/hydra/client/public",
+			"revision": "067e4983792e5527a9f024bda5255913fb2e4713",
+			"revisionTime": "2019-04-20T10:22:21Z"
+		},
+		{
+			"checksumSHA1": "FBAHwzlSgM1oj4a9CzYprh0rmWI=",
+			"path": "github.com/ory/hydra/sdk/go/hydra/client/version",
+			"revision": "067e4983792e5527a9f024bda5255913fb2e4713",
+			"revisionTime": "2019-04-20T10:22:21Z"
+		},
+		{
+			"checksumSHA1": "RATWTZ1Hqi/V1f9PgwAU+Kveiqo=",
+			"path": "github.com/ory/hydra/sdk/go/hydra/models",
+			"revision": "067e4983792e5527a9f024bda5255913fb2e4713",
+			"revisionTime": "2019-04-20T10:22:21Z"
 		},
 		{
 			"checksumSHA1": "7vZzYABrT1A1Vxev7TC9b4vEvnw=",
