@@ -233,10 +233,38 @@ var mandatoryOptions = []ServiceOption{
 	// Setting config watchers
 	AfterInit(func(s Service) error {
 		watchers := s.Options().Watchers
+
 		if len(watchers) == 0 {
 			return nil
 		}
+
 		registerWatchers(s.Name(), watchers)
+
+		// w, err := config.Watch("services", s.Name())
+		// if err != nil {
+		// 	return err
+		// }
+
+		// go func() {
+		// 	defer w.Stop()
+
+		// 	for {
+		// 		ch, err := w.Next()
+		// 		if err != nil {
+		// 			break
+		// 		}
+
+		// 		var c config.Map
+		// 		if err := ch.Scan(&c); err != nil {
+		// 			continue
+		// 		}
+
+		// 		for _, watcher := range watchers {
+		// 			watcher(s.Options().Context, c)
+		// 		}
+		// 	}
+		// }()
+
 		return nil
 	}),
 

@@ -1,7 +1,5 @@
 package index
 
-import "html/template"
-
 // TplConfFilterFunc takes a TplConf and modifies it
 type TplConfFilterFunc func(in *TplConf) *TplConf
 
@@ -33,7 +31,6 @@ type TplConf struct {
 	ErrorMessage     string
 	Debug            bool
 	LoadingString    string
-	CustomHTMLHeader template.HTML
 	StartParameters  map[string]interface{}
 }
 
@@ -76,7 +73,6 @@ var loading = `<!DOCTYPE html>
 <html xmlns:ajxp>
 	<head>
 		<title>{{.ApplicationTitle}}</title>
-{{if .CustomHTMLHeader}}{{.CustomHTMLHeader}}{{end}}
 		{{if .Rebase}}<base href="{{.Rebase}}"/>{{end}}
 		<link rel="stylesheet" type="text/css" href="{{.ResourcesFolder}}/build/pydio.{{.Theme}}.min.css?v={{.Version}}">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -95,7 +91,6 @@ var page = `<!DOCTYPE html>
 <html xmlns:ajxp>
 	<head>
 		<title>{{.ApplicationTitle}}</title>
-{{if .CustomHTMLHeader}}{{.CustomHTMLHeader}}{{end}}
 		{{if .Rebase}}<base href="{{.Rebase}}"/>{{end}}
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
@@ -124,7 +119,6 @@ var public = `<!DOCTYPE html>
 <html xmlns:ajxp>
 	<head>
 		<title>{{.ApplicationTitle}}</title>
-{{if .CustomHTMLHeader}}{{.CustomHTMLHeader}}{{end}}
 		{{if .Rebase}}<base href="{{.Rebase}}"/>{{end}}
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
@@ -154,7 +148,6 @@ var errorTpl = `<!DOCTYPE html>
 <html xmlns:ajxp>
 	<head>
 		<title>{{.ApplicationTitle}}</title>
-{{if .CustomHTMLHeader}}{{.CustomHTMLHeader}}{{end}}
 		{{if .Rebase}}<base href="{{.Rebase}}"/>{{end}}
 		<link rel="stylesheet" type="text/css" href="{{.ResourcesFolder}}/build/pydio.{{.Theme}}.min.css?v={{.Version}}">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
