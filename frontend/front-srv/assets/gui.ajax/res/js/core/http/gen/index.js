@@ -21,6 +21,7 @@ import ActivityStreamActivitiesRequest from './model/ActivityStreamActivitiesReq
 import ActivityStreamContext from './model/ActivityStreamContext';
 import ActivitySubscription from './model/ActivitySubscription';
 import ActivitySummaryPointOfView from './model/ActivitySummaryPointOfView';
+import AuthToken from './model/AuthToken';
 import CtlPeer from './model/CtlPeer';
 import CtlService from './model/CtlService';
 import CtlServiceCommand from './model/CtlServiceCommand';
@@ -177,6 +178,8 @@ import RestSearchRoleRequest from './model/RestSearchRoleRequest';
 import RestSearchUserRequest from './model/RestSearchUserRequest';
 import RestSearchWorkspaceRequest from './model/RestSearchWorkspaceRequest';
 import RestServiceCollection from './model/RestServiceCollection';
+import RestSettingsAccess from './model/RestSettingsAccess';
+import RestSettingsAccessRestPolicy from './model/RestSettingsAccessRestPolicy';
 import RestSettingsEntry from './model/RestSettingsEntry';
 import RestSettingsEntryMeta from './model/RestSettingsEntryMeta';
 import RestSettingsMenuResponse from './model/RestSettingsMenuResponse';
@@ -335,6 +338,12 @@ export {
      * @property {module:model/ActivitySummaryPointOfView}
      */
     ActivitySummaryPointOfView,
+
+    /**
+     * The AuthToken model constructor.
+     * @property {module:model/AuthToken}
+     */
+    AuthToken,
 
     /**
      * The CtlPeer model constructor.
@@ -1271,6 +1280,18 @@ export {
      * @property {module:model/RestServiceCollection}
      */
     RestServiceCollection,
+
+    /**
+     * The RestSettingsAccess model constructor.
+     * @property {module:model/RestSettingsAccess}
+     */
+    RestSettingsAccess,
+
+    /**
+     * The RestSettingsAccessRestPolicy model constructor.
+     * @property {module:model/RestSettingsAccessRestPolicy}
+     */
+    RestSettingsAccessRestPolicy,
 
     /**
      * The RestSettingsEntry model constructor.
