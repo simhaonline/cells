@@ -26,6 +26,7 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
@@ -34,6 +35,7 @@ import (
 
 func init() {
 	// Ignore client pool for unit tests
+	config.AsTestEnv()
 	views.IsUnitTestEnv = true
 }
 
