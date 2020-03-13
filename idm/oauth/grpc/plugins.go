@@ -22,7 +22,6 @@
 package grpc
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/micro/go-micro"
@@ -41,6 +40,10 @@ import (
 func init() {
 
 	plugins.Register(func() {
+		// Configuration
+		auth.InitConfiguration(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
+		auth.RegisterGRPCProvider(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_OAUTH)
+
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH),
 			service.Tag(common.SERVICE_TAG_IDM),
@@ -70,7 +73,6 @@ func initialize(s service.Service) error {
 	dao := servicecontext.GetDAO(ctx).(sql.DAO)
 
 	// Configuration
-	fmt.Println(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
 	auth.InitConfiguration(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
 	auth.RegisterGRPCProvider(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_OAUTH)
 
