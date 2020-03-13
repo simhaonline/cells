@@ -60,8 +60,14 @@ var (
 
 var (
 	DefaultClientID    = "cells-frontend"
-	DefaultRedirectURI = config.Get("defaults", "url").String("") + "/auth/callback"
+	DefaultRedirectURI string
 )
+
+func init() {
+	config.OnInitialized(func() {
+		DefaultRedirectURI = config.Get("defaults", "url").String("") + "/auth/callback"
+	})
+}
 
 func (h *Handler) GetLogin(ctx context.Context, in *pauth.GetLoginRequest, out *pauth.GetLoginResponse) error {
 	req, err := auth.GetRegistry().ConsentManager().GetLoginRequest(ctx, in.Challenge)
@@ -352,6 +358,7 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 
 	if err != nil {
 		e := fosite.ErrorToRFC6749Error(err)
+		fmt.Println(e.Hint)
 		log.Logger(ctx).Error("Could not create authorize response", zap.Error(e), zap.String("debug", e.Debug))
 		return err
 	}
