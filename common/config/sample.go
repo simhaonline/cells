@@ -72,18 +72,6 @@ var SampleConfig = `{
         "pydio.grpc.acl":{
             "dsn": "default"
         },
-        "pydio.grpc.auth":{
-            "dsn": "default",
-            "dex" : {
-                "connectors": [
-                    {
-                        "type": "pydio",
-                        "id"  : "pydio",
-                        "name": "Pydio Cells"
-                    }
-                ]
-            }
-        },
         "pydio.grpc.tree":{
             "dsn":"default"
         },
@@ -129,6 +117,13 @@ var SampleConfig = `{
             "fork": true
         },
 		"pydio.web.oauth":{
+			"connectors": [
+				{
+					"type": "pydio",
+					"id"  : "pydio",
+					"name": "Pydio Cells"
+				}
+			],
 			"cors": {
 				"public": {
 					"allowedOrigins": "*"

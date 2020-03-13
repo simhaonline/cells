@@ -15,10 +15,18 @@ import (
 )
 
 var (
-	hydraBaseURL  = config.Get("defaults", "urlInternal").String("")
-	hydraAdminURL = hydraBaseURL + "/oidc-admin"
-	hydraOAuthURL = hydraBaseURL + "/oidc/oauth2"
+	hydraBaseURL  string
+	hydraAdminURL string
+	hydraOAuthURL string
 )
+
+func init() {
+	config.OnInitialized(func() {
+		hydraBaseURL = config.Get("defaults", "urlInternal").String("")
+		hydraAdminURL = hydraBaseURL + "/oidc-admin"
+		hydraOAuthURL = hydraBaseURL + "/oidc/oauth2"
+	})
+}
 
 type ConsentResponse struct {
 	Challenge                    string   `json:"challenge"`
