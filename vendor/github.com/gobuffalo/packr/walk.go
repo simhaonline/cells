@@ -12,6 +12,7 @@ type WalkFunc = packd.WalkFunc
 
 // Walk will traverse the box and call the WalkFunc for each file in the box/folder.
 func (b Box) Walk(wf WalkFunc) error {
+<<<<<<< HEAD
 
 	if _, o1 := data[b.Path]; !o1 {
 		if l, o2 := loaders[b.Path]; o2 {
@@ -19,6 +20,8 @@ func (b Box) Walk(wf WalkFunc) error {
 		}
 	}
 
+=======
+>>>>>>> Update vendor for forked pydio/packr
 	if data[b.Path] == nil {
 		base, err := filepath.EvalSymlinks(filepath.Join(b.callingDir, b.Path))
 		if err != nil {

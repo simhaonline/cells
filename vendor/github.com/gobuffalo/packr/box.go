@@ -154,12 +154,15 @@ func (b Box) find(name string) (File, error) {
 	// Absolute name is considered as relative to the box root
 	cleanName = strings.TrimPrefix(cleanName, "/")
 
+<<<<<<< HEAD
 	if _, o1 := data[b.Path]; !o1 {
 		if l, o2 := loaders[b.Path]; o2 {
 			l()
 		}
 	}
 
+=======
+>>>>>>> Update vendor for forked pydio/packr
 	if _, ok := data[b.Path]; ok {
 		if bb, ok := data[b.Path][cleanName]; ok {
 			bb = b.decompress(bb)

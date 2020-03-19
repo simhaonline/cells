@@ -52,12 +52,15 @@ func PackJSONBytes(box string, name string, jbb string) error {
 	return nil
 }
 
+<<<<<<< HEAD
 func PackBoxLoader(box string, loader func()) {
 	gil2.Lock()
 	defer gil2.Unlock()
 	loaders[box] = loader
 }
 
+=======
+>>>>>>> Update vendor for forked pydio/packr
 // UnpackBytes unpacks bytes for specific box.
 func UnpackBytes(box string) {
 	gil.Lock()

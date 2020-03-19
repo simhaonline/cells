@@ -25,6 +25,7 @@ func PackBytes(box string, name string, bb []byte) {
 	data[box][name] = bb
 }
 
+<<<<<<< HEAD
 func GetBox(box string) (map[string][]byte, bool) {
 	gil.Lock()
 	defer gil.Unlock()
@@ -34,6 +35,8 @@ func GetBox(box string) (map[string][]byte, bool) {
 	return nil, false
 }
 
+=======
+>>>>>>> Update vendor for forked pydio/packr
 // PackBytesGzip packets the gzipped compressed bytes into a box.
 func PackBytesGzip(box string, name string, bb []byte) error {
 	var buf bytes.Buffer
