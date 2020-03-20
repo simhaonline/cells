@@ -60,6 +60,8 @@ var _elementsClipboardTextField = require('./elements/ClipboardTextField');
 
 var _elementsClipboardTextField2 = _interopRequireDefault(_elementsClipboardTextField);
 
+var _elementsGenericCard = require('./elements/GenericCard');
+
 var _viewsEmptyStateView = require('./views/EmptyStateView');
 
 var _viewsEmptyStateView2 = _interopRequireDefault(_viewsEmptyStateView);
@@ -177,6 +179,8 @@ var PydioComponents = {
     EmptyStateView: _viewsEmptyStateView2['default'],
     SimpleFigureBadge: _elementsSimpleFigureBadge2['default'],
     ModalAppBar: _viewsModalAppBar2['default'],
+    GenericCard: _elementsGenericCard.GenericCard,
+    GenericLine: _elementsGenericCard.GenericLine,
 
     ReactEditorOpener: _editorReactEditorOpener2['default'],
     PaperEditorLayout: _editorPaperEditor.PaperEditorLayout,

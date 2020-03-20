@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import {ActivityServiceApi, ActivityStreamActivitiesRequest} from 'pydio/http/rest-api'
 
@@ -39,7 +40,7 @@ class AS2Client{
         if(limit > -1){
             req.Limit = limit;
         }
-        req.Language = pydio.user.getPreference("lang") || '';
+        req.Language = Pydio.getInstance().user.getPreference("lang") || '';
         if(pointOfView){
             req.PointOfView = pointOfView;
         }

@@ -74,6 +74,11 @@ class CellModel extends Observable{
     getNodeLabelInContext(node){
         const path = node.Path;
         let label = PathUtils.getBasename(path);
+        if(!label && node.MetaStore && node.MetaStore.name){
+            try{
+                label = JSON.parse(node.MetaStore.name)
+            } catch(e){}
+        }
         if(node.MetaStore && node.MetaStore.selection){
             return label;
         }

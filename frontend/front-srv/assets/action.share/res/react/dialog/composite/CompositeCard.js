@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -19,7 +19,6 @@
  */
 
 import React from 'react'
-import {GenericCard, GenericLine} from '../main/GenericCard'
 import CompositeModel from '../composite/CompositeModel'
 import GenericEditor from '../main/GenericEditor'
 import Pydio from 'pydio'
@@ -36,6 +35,8 @@ import {Divider} from 'material-ui'
 
 const {PaletteModifier} = Pydio.requireLib('hoc');
 const {Tooltip} = Pydio.requireLib("boot");
+const {GenericCard, GenericLine} = Pydio.requireLib('components');
+
 
 class CompositeCard extends React.Component {
 

@@ -118,6 +118,11 @@ var CellModel = (function (_Observable) {
                 }
             });
         }
+        if (!label && node.MetaStore && node.MetaStore.name) {
+            try {
+                label = JSON.parse(node.MetaStore.name);
+            } catch (e) {}
+        }
         return label;
     };
 

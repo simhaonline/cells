@@ -173,8 +173,9 @@ var BookmarksList = (function (_React$Component) {
             null,
             _react2['default'].createElement(_materialUi.IconButton, {
                 onTouchTap: this.handleTouchTap.bind(this),
-                iconClassName: "userActionIcon mdi mdi-star-outline",
+                iconClassName: "userActionIcon mdi mdi-star",
                 tooltip: pydio.MessageHash['147'],
+                tooltipPosition: "bottom-left",
                 className: 'userActionButton',
                 iconStyle: iconStyle,
                 style: buttonStyle

@@ -124,8 +124,9 @@ class BookmarksList extends React.Component {
             <span>
                 <IconButton
                     onTouchTap={this.handleTouchTap.bind(this)}
-                    iconClassName={"userActionIcon mdi mdi-star-outline"}
+                    iconClassName={"userActionIcon mdi mdi-star"}
                     tooltip={pydio.MessageHash['147']}
+                    tooltipPosition={"bottom-left"}
                     className="userActionButton"
                     iconStyle={iconStyle}
                     style={buttonStyle}

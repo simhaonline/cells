@@ -41,6 +41,8 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
+var _materialUiStyles = require('material-ui/styles');
+
 var _Client = require('./Client');
 
 var _Client2 = _interopRequireDefault(_Client);
@@ -142,9 +144,11 @@ var UserPanel = (function (_React$Component) {
             var _props = this.props;
             var pydio = _props.pydio;
             var iconStyle = _props.iconStyle;
+            var muiTheme = _props.muiTheme;
             var _state = this.state;
             var open = _state.open;
             var anchorEl = _state.anchorEl;
+            var unreadStatus = _state.unreadStatus;
 
             var buttonStyle = { borderRadius: '50%' };
             if (open && iconStyle && iconStyle.color) {
@@ -154,21 +158,23 @@ var UserPanel = (function (_React$Component) {
                 'span',
                 null,
                 _react2['default'].createElement(
-                    _materialUi.Badge,
+                    'div',
                     {
+                        style: { position: 'relative', display: 'inline-block' },
+
                         badgeContent: this.state.unreadStatus,
                         secondary: true,
-                        style: this.state.unreadStatus ? { padding: '0 24px 0 0' } : { padding: 0 },
                         badgeStyle: this.state.unreadStatus ? null : { display: 'none' }
                     },
                     _react2['default'].createElement(_materialUi.IconButton, {
                         onTouchTap: this.handleTouchTap.bind(this),
                         iconClassName: this.props.iconClassName || "icon-bell",
-                        tooltip: this.props.pydio.MessageHash['notification_center.4'],
+                        tooltip: (unreadStatus ? unreadStatus + ' ' : '') + this.props.pydio.MessageHash['notification_center.4'],
                         className: 'userActionButton alertsButton',
                         iconStyle: iconStyle,
                         style: buttonStyle
-                    })
+                    }),
+                    unreadStatus > 0 && _react2['default'].createElement('div', { style: { width: 6, height: 6, borderRadius: '50%', top: 9, right: 6, position: 'absolute', backgroundColor: muiTheme.palette.accent1Color } })
                 ),
                 _react2['default'].createElement(
                     _materialUi.Popover,
@@ -201,6 +207,8 @@ var UserPanel = (function (_React$Component) {
 
     return UserPanel;
 })(_react2['default'].Component);
+
+exports['default'] = UserPanel = (0, _materialUiStyles.muiThemeable)()(UserPanel);
 
 exports['default'] = UserPanel;
 module.exports = exports['default'];

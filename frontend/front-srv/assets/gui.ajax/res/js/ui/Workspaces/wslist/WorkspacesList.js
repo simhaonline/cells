@@ -23,6 +23,7 @@ import Pydio from 'pydio'
 const {withVerticalScroll, ModernTextField} = Pydio.requireLib('hoc');
 import WorkspaceEntry from './WorkspaceEntry'
 import Repository from 'pydio/model/repository'
+import MetaNodeProvider from 'pydio/model/meta-node-provider'
 import ResourcesManager from 'pydio/http/resources-manager'
 import {IconButton, Popover, FlatButton} from 'material-ui'
 const {muiThemeable} = require('material-ui/styles');
@@ -91,9 +92,8 @@ class Entries extends React.Component{
 
 
     render(){
-        const {title, entries, filterHint, titleStyle, pydio, createAction, activeWorkspace, palette, buttonStyles, emptyState} = this.props;
+        const {title, entries, filterHint, titleStyle, pydio, createAction, activeWorkspace, palette, buttonStyles, emptyState, nonActiveRoots} = this.props;
         const {toggleFilter, filterValue} = this.state;
-        const messages = pydio.MessageHash;
 
         const filterFunc = (t, f, ws)=> (!t || !f || ws.getLabel().toLowerCase().indexOf(f.toLowerCase()) >= 0);
 
@@ -158,6 +158,7 @@ class Entries extends React.Component{
                             key={ws.getId()}
                             workspace={ws}
                             showFoldersTree={activeWorkspace && activeWorkspace===ws.getId()}
+                            nonActiveRoot={nonActiveRoots[ws.getSlug()]}
                         />
                     ))}
                     {!entries.length && emptyState}
@@ -174,18 +175,42 @@ class WorkspacesList extends React.Component{
 
     constructor(props, context){
         super(props, context);
-        this.state = WorkspacesList.stateFromPydio(props.pydio);
+        this.state = this.stateFromPydio(props.pydio);
         this._reloadObserver = () => {
-            this.setState(WorkspacesList.stateFromPydio(this.props.pydio));
+            this.setState(this.stateFromPydio(this.props.pydio));
         };
     }
 
-    static stateFromPydio(pydio){
+    shouldComponentUpdate(nextProps, nextState){
+        return nextState.random !== this.state.random || nextState.popoverOpen !== this.state.popoverOpen;
+    }
+
+    stateFromPydio(pydio){
+        const workspaces = pydio.user ? pydio.user.getRepositoriesList() : [];
+        const wsList = [];
+        workspaces.forEach(o => wsList.push(o));
+        const notActives = wsList
+            .filter(ws => !(pydio && pydio.user && pydio.user.activeRepository === ws.getId()))
+            .filter(ws => ws.getNodeProviderDef() && ws.getNodeProviderDef().name === 'MetaNodeProvider');
+
+        if(notActives.length) {
+            this.loadNonActiveRoots(notActives);
+        }
         return {
-            workspaces : pydio.user ? pydio.user.getRepositoriesList() : [],
+            random: Math.random(),
+            workspaces,
+            nonActiveRoots:{},
             activeWorkspace: pydio.user ? pydio.user.activeRepository : false,
             activeRepoIsHome: pydio.user && pydio.user.activeRepository === 'homepage'
         };
+    }
+
+    loadNonActiveRoots(workspaces){
+        MetaNodeProvider.loadRoots(workspaces.map(ws => ws.getSlug())).then(nonActiveRoots => {
+            this.setState({nonActiveRoots, random: Math.random()});
+        }).catch(e => {
+            this.setState({nonActiveRoots: {}, random: Math.random()});
+        });
     }
 
     componentDidMount(){
@@ -202,7 +227,7 @@ class WorkspacesList extends React.Component{
 
     render(){
         let createAction;
-        const {workspaces,activeWorkspace} = this.state;
+        const {workspaces,activeWorkspace, nonActiveRoots, popoverOpen, popoverAnchor, popoverContent} = this.state;
         const {pydio, className, muiTheme, sectionTitleStyle} = this.props;
 
         // Split Workspaces from Cells
@@ -229,7 +254,7 @@ class WorkspacesList extends React.Component{
                 this.setState({
                     popoverOpen: true,
                     popoverAnchor: target,
-                    popoverContent: <ShareDialog.CreateCellDialog pydio={this.props.pydio} onDismiss={()=> {this.setState({popoverOpen: false})}}/>
+                    popoverContent: <ShareDialog.CreateCellDialog pydio={pydio} onDismiss={()=> {this.setState({popoverOpen: false})}}/>
                 })
             })
         }.bind(this);
@@ -270,16 +295,16 @@ class WorkspacesList extends React.Component{
         return (
             <div className={classNames.join(' ')}>
                 <Popover
-                    open={this.state.popoverOpen}
-                    anchorEl={this.state.popoverAnchor}
+                    open={popoverOpen}
+                    anchorEl={popoverAnchor}
                     useLayerForClickAway={true}
                     onRequestClose={() => {this.setState({popoverOpen: false})}}
                     anchorOrigin={sharedEntries.length ? {horizontal:"left",vertical:"top"} : {horizontal:"left",vertical:"bottom"}}
                     targetOrigin={sharedEntries.length ? {horizontal:"left",vertical:"top"} : {horizontal:"left",vertical:"bottom"}}
                     zDepth={3}
                     style={{borderRadius:6, overflow: 'hidden', marginLeft:sharedEntries.length?-10:0, marginTop:sharedEntries.length?-10:0}}
-                >{this.state.popoverContent}</Popover>
-                {entries.length &&
+                >{popoverContent}</Popover>
+                {entries.length > 0 &&
                     <Entries
                         title={messages[468]}
                         entries={entries}
@@ -287,6 +312,7 @@ class WorkspacesList extends React.Component{
                         titleStyle={{...sectionTitleStyle, marginTop:5, position:'relative', overflow:'visible', transition:'none'}}
                         pydio={pydio}
                         activeWorkspace={activeWorkspace}
+                        nonActiveRoots={nonActiveRoots}
                         palette={muiTheme.palette}
                         buttonStyles={buttonStyles}
                     />
@@ -299,6 +325,7 @@ class WorkspacesList extends React.Component{
                     pydio={pydio}
                     createAction={createAction}
                     activeWorkspace={activeWorkspace}
+                    nonActiveRoots={nonActiveRoots}
                     palette={muiTheme.palette}
                     buttonStyles={buttonStyles}
                     emptyState={

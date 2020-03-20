@@ -30,6 +30,7 @@ import {TreeView, DNDTreeView, FoldersTree} from './views/TreeView'
 import LabelWithTip from './elements/LabelWithTip'
 import SimpleFigureBadge from './elements/SimpleFigureBadge'
 import ClipboardTextField from './elements/ClipboardTextField'
+import {GenericCard, GenericLine} from './elements/GenericCard'
 import EmptyStateView from './views/EmptyStateView'
 import ModalAppBar from './views/ModalAppBar'
 
@@ -80,6 +81,8 @@ const PydioComponents = {
     EmptyStateView          : EmptyStateView,
     SimpleFigureBadge       : SimpleFigureBadge,
     ModalAppBar             : ModalAppBar,
+    GenericCard,
+    GenericLine,
 
     ReactEditorOpener       : ReactEditorOpener,
     PaperEditorLayout       : PaperEditorLayout,

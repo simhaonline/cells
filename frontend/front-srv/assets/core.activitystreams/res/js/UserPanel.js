@@ -19,6 +19,7 @@
  */
 import React from 'react'
 import {Badge, IconButton, Popover, Divider, List} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 import Client from './Client'
 import ActivityList from './ActivityList'
 import debounce from 'lodash.debounce'
@@ -89,29 +90,33 @@ class UserPanel extends React.Component {
     }
 
     render() {
-        const {pydio, iconStyle} = this.props;
-        const {open, anchorEl} = this.state;
+        const {pydio, iconStyle, muiTheme} = this.props;
+        const {open, anchorEl, unreadStatus} = this.state;
         let buttonStyle = {borderRadius: '50%'};
         if(open && iconStyle && iconStyle.color){
             buttonStyle = {...buttonStyle, backgroundColor: Color(iconStyle.color).fade(0.9).toString()}
         }
         return (
             <span>
-                <Badge
+                <div
+                    style={{position:'relative', display:'inline-block'}}
+
                     badgeContent={this.state.unreadStatus}
                     secondary={true}
-                    style={this.state.unreadStatus  ? {padding: '0 24px 0 0'} : {padding: 0}}
                     badgeStyle={this.state.unreadStatus ? null : {display: 'none'}}
                 >
                     <IconButton
                         onTouchTap={this.handleTouchTap.bind(this)}
                         iconClassName={this.props.iconClassName || "icon-bell"}
-                        tooltip={this.props.pydio.MessageHash['notification_center.4']}
+                        tooltip={(unreadStatus ? unreadStatus + ' ' : '') + this.props.pydio.MessageHash['notification_center.4']}
                         className="userActionButton alertsButton"
                         iconStyle={iconStyle}
                         style={buttonStyle}
                     />
-                </Badge>
+                    {unreadStatus > 0 &&
+                    <div style={{width: 6, height:6, borderRadius:'50%', top: 9, right: 6, position:'absolute', backgroundColor:muiTheme.palette.accent1Color}}></div>
+                    }
+                </div>
                 <Popover
                     open={open}
                     anchorEl={anchorEl}
@@ -137,5 +142,7 @@ class UserPanel extends React.Component {
     }
 
 }
+
+UserPanel = muiThemeable()(UserPanel);
 
 export {UserPanel as default};
