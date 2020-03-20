@@ -91,6 +91,7 @@ func (b *BasicAuthenticator) Wrap(handler http.Handler) http.HandlerFunc {
 					Claims:    claims,
 				}
 				handler.ServeHTTP(w, r)
+				return
 			}
 		}
 
