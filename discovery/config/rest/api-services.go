@@ -100,12 +100,13 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 		}
 		accu[p.GetAddress()] = p.GetAddress()
 		if h := p.GetHostname(); h != "" {
-			accu[h] = h
+			// Replace value with "HostName|IP"
+			accu[p.GetAddress()] = h + "|" + p.GetAddress()
 		}
 	}
 
-	for k, _ := range accu {
-		response.PeerAddresses = append(response.PeerAddresses, k)
+	for _, v := range accu {
+		response.PeerAddresses = append(response.PeerAddresses, v)
 	}
 
 	resp.WriteEntity(response)

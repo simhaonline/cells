@@ -27,6 +27,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pydio/cells/common/utils/net"
+
 	"github.com/dchest/uniuri"
 
 	"github.com/pydio/cells/common"
@@ -350,7 +352,7 @@ func filterGatewaysWithStorageConfigKey(configs map[string]*object.MinioConfig, 
 func filterMiniosWithBaseFolder(configs map[string]*object.MinioConfig, peerAddress string, folder string) *object.MinioConfig {
 
 	for _, source := range configs {
-		if source.StorageType == object.StorageType_LOCAL && source.PeerAddress == peerAddress && source.LocalFolder == folder {
+		if source.StorageType == object.StorageType_LOCAL && net.PeerAddressesAreSameNode(source.PeerAddress, peerAddress) && source.LocalFolder == folder {
 			return source
 		}
 	}

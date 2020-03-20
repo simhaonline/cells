@@ -22,6 +22,7 @@ package registry
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
@@ -36,13 +37,15 @@ func PeerClientSelector(srvName string, targetPeer string) selector.SelectOption
 			}
 			var nodes []*registry.Node
 			for _, n := range srv.Nodes {
-				if n.Address == targetPeer {
-					nodes = append(nodes, n)
-					break
-				}
-				if h, ok := n.Metadata[serviceMetaHostname]; ok && h == targetPeer {
-					nodes = append(nodes, n)
-					break
+				for _, address := range strings.Split(targetPeer, "|") {
+					if n.Address == address {
+						nodes = append(nodes, n)
+						break
+					}
+					if h, ok := n.Metadata[serviceMetaHostname]; ok && h == address {
+						nodes = append(nodes, n)
+						break
+					}
 				}
 			}
 			if len(nodes) > 0 {
