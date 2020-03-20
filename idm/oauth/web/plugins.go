@@ -36,6 +36,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
+	"github.com/pydio/cells/common/config"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
@@ -113,6 +114,9 @@ func serve(s service.Service) (micro.Option, error) {
 func initialize(s service.Service) error {
 
 	ctx := s.Options().Context
+
+	// Configuration
+	auth.InitConfiguration(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
 
 	// Registry
 	auth.InitRegistry(servicecontext.GetDAO(ctx).(sql.DAO))

@@ -7,19 +7,26 @@ import (
 	"net/http"
 	"time"
 
-	"golang.org/x/oauth2"
-
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/auth"
+	"golang.org/x/oauth2"
 )
 
 var (
 	hydraBaseURL  string
-	hydraAdminURL = hydraBaseURL + "/oidc-admin"
-	hydraOAuthURL = hydraBaseURL + "/oidc/oauth2"
+	hydraAdminURL string
+	hydraOAuthURL string
 )
+
+func init() {
+	config.OnInitialized(func() {
+		hydraBaseURL = config.Get("defaults", "urlInternal").String("")
+		hydraAdminURL = hydraBaseURL + "/oidc-admin"
+		hydraOAuthURL = hydraBaseURL + "/oidc/oauth2"
+	})
+}
 
 type ConsentResponse struct {
 	Challenge                    string   `json:"challenge"`
@@ -45,12 +52,6 @@ type TokenResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 	ExpiresIn    int64  `json:"expires_in"`
-}
-
-func init() {
-	config.OnInitialized(func() {
-		hydraBaseURL = config.Get("defaults", "urlInternal").String("")
-	})
 }
 
 func GetLogin(challenge string) (*auth.GetLoginResponse, error) {

@@ -49,10 +49,12 @@ var (
 	PydioConfigDir  = ApplicationWorkingDir()
 	PydioConfigFile = "pydio.json"
 
-	VersionsStore file2.VersionsStore
-	defaultConfig *Config
-	once          sync.Once
-	configLoaded  = make(chan struct{}, 1)
+	VersionsStore    file2.VersionsStore
+	defaultConfig    *Config
+	once             sync.Once
+	configLoaded     = make(chan struct{}, 1)
+	remoteSourceOnce sync.Once
+	remoteSource     bool
 
 	postInitializers []func()
 )
@@ -266,5 +268,5 @@ func GetJsonPath() string {
 
 func GetRemoteSource() bool {
 	<-configLoaded
-	return defaults.RuntimeIsCluster() // viper.GetString("registry_cluster_routes") != ""
+	return defaults.RuntimeIsCluster()
 }
