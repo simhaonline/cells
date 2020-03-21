@@ -120,15 +120,19 @@ class UserPanel extends React.Component {
                 <Popover
                     open={open}
                     anchorEl={anchorEl}
-                    anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+                    anchorOrigin={{horizontal: 'left', vertical: 'top'}}
                     targetOrigin={{horizontal: 'left', vertical: 'top'}}
                     onRequestClose={this.handleRequestClose.bind(this)}
                     style={{width:320}}
-                    zDepth={2}
+                    zDepth={3}
 
                 >
-                    <div style={{display: 'flex', alignItems: 'center', borderRadius:'2px 2px 0 0', padding: '12px 16px', width: '100%',
-                        backgroundColor: 'rgb(238, 238, 238)', borderBottom: '1px solid rgb(224, 224, 224)'}}>{pydio.MessageHash['notification_center.1']}</div>
+                    <div style={{display: 'flex', alignItems: 'center', borderRadius:'2px 2px 0 0', width: '100%',
+                        backgroundColor:'#f8fafc', borderBottom: '1px solid #ECEFF1', color:muiTheme.palette.primary1Color}}>
+                        <span className={"mdi mdi-star"} style={{fontSize: 18, margin:'12px 8px 14px 16px'}}/>
+                        <span style={{fontSize:15, fontWeight: 500}}>{pydio.MessageHash['notification_center.1']}</span>
+                    </div>
+
                     {this.state.data &&
                         <ActivityList
                             items={this.state.data.items}
