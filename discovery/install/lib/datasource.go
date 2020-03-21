@@ -46,7 +46,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 	}
 
 	// First store minio config
-	minioConfig := config.FactorizeMinioServers(map[string]*object.MinioConfig{}, conf, false)
+	minioConfig, _ := config.FactorizeMinioServers(map[string]*object.MinioConfig{}, conf, false)
 	// Replace ApiSecret with vault Uuid
 	keyUuid := uuid.New()
 	config.SetSecret(keyUuid, conf.ApiSecret)

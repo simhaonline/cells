@@ -115,7 +115,11 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	currentMinios := config.ListMinioConfigsFromConfig()
 	_, update := currentSources[ds.Name]
 
-	minioConfig := config.FactorizeMinioServers(currentMinios, &ds, update)
+	minioConfig, e := config.FactorizeMinioServers(currentMinios, &ds, update)
+	if e != nil {
+		service.RestError500(req, resp, e)
+		return
+	}
 	currentSources[ds.Name] = &ds
 	currentMinios[minioConfig.Name] = minioConfig
 	if ds.ApiSecret != "" {
