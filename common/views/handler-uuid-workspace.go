@@ -121,7 +121,7 @@ func (h *UuidNodeHandler) updateOutputBranch(ctx context.Context, node *tree.Nod
 		log.Logger(ctx).Debug("Belongs to workspaces", zap.Any("ws", workspaces), zap.Any("wsRoots", wsRoots))
 		for _, ws := range workspaces {
 			if relativePath, e := h.relativePathToWsRoot(ctx, ws, node.Path, wsRoots[ws.UUID]); e == nil {
-				out.AppearsIn = append(node.AppearsIn, &tree.WorkspaceRelativePath{
+				out.AppearsIn = append(out.AppearsIn, &tree.WorkspaceRelativePath{
 					WsUuid:  ws.UUID,
 					WsLabel: ws.Label,
 					WsSlug:  ws.Slug,
