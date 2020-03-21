@@ -22,9 +22,11 @@ package views
 
 import (
 	"context"
+	"path"
+	"strings"
+
 	servicecontext "github.com/pydio/cells/common/service/context"
 	context2 "github.com/pydio/cells/common/utils/context"
-	"strings"
 
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
@@ -101,7 +103,7 @@ func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, node *tree.Node
 	}
 	branchInfo.AncestorsList[node.Path] = parents
 	ctx = context2.WithAdditionalMetadata(ctx, map[string]string{
-		servicecontext.CtxWorkspaceUuid:branchInfo.Workspace.UUID,
+		servicecontext.CtxWorkspaceUuid: branchInfo.Workspace.UUID,
 	})
 	return WithBranchInfo(ctx, identifier, branchInfo), node, nil
 }
@@ -118,7 +120,7 @@ func (h *UuidNodeHandler) updateOutputBranch(ctx context.Context, node *tree.Nod
 		workspaces, wsRoots := accessList.BelongsToWorkspaces(ctx, ancestors...)
 		log.Logger(ctx).Debug("Belongs to workspaces", zap.Any("ws", workspaces), zap.Any("wsRoots", wsRoots))
 		for _, ws := range workspaces {
-			if relativePath, e := h.relativePathToWsRoot(ctx, node.Path, wsRoots[ws.UUID]); e == nil {
+			if relativePath, e := h.relativePathToWsRoot(ctx, ws, node.Path, wsRoots[ws.UUID]); e == nil {
 				out.AppearsIn = append(node.AppearsIn, &tree.WorkspaceRelativePath{
 					WsUuid:  ws.UUID,
 					WsLabel: ws.Label,
@@ -136,12 +138,18 @@ func (h *UuidNodeHandler) updateOutputBranch(ctx context.Context, node *tree.Nod
 
 }
 
-func (h *UuidNodeHandler) relativePathToWsRoot(ctx context.Context, nodeFullPath string, rootNodeId string) (string, error) {
+func (h *UuidNodeHandler) relativePathToWsRoot(ctx context.Context, ws *idm.Workspace, nodeFullPath string, rootNodeId string) (string, error) {
 
 	if resp, e := h.next.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootNodeId}}); e == nil {
 		rootPath := resp.Node.Path
 		if strings.HasPrefix(nodeFullPath, rootPath) {
-			return strings.TrimPrefix(nodeFullPath, rootPath), nil
+			relPath := strings.TrimPrefix(nodeFullPath, rootPath)
+			if len(ws.RootUUIDs) > 1 {
+				// This workspace has multiple root, prepend the fake root key
+				rootKey := h.makeRootKey(resp.Node)
+				relPath = path.Join(rootKey, relPath)
+			}
+			return relPath, nil
 		} else {
 			return "", errors.NotFound("RouterUuid", "Cannot subtract paths "+nodeFullPath+" - "+rootPath)
 		}
