@@ -37,7 +37,6 @@ class CellCard extends React.Component{
         });
         const {rootNode} = this.props;
         if(rootNode){
-            console.log(rootNode);
             if(rootNode.getMetadata().has('virtual_root')){
                 // Use node children instead
                 if(rootNode.isLoaded()){
@@ -47,7 +46,6 @@ class CellCard extends React.Component{
                     // Trigger children load
                     rootNode.observe('loaded', () => {
                         const rootNodes = [];
-                        console.log("afterLoad", rootNode);
                         rootNode.getChildren().forEach(n => rootNodes.push(n));
                         this.setState({rootNodes});
                     });

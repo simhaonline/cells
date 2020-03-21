@@ -217,7 +217,6 @@ export default class MetaNodeProvider{
                     node.updateProvider(new MetaNodeProvider());
                     output[slug] = node;
                 });
-                console.log(output);
                 return output;
             } else {
                 return {};

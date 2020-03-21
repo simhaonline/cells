@@ -105,6 +105,11 @@ var CellModel = (function (_Observable) {
 
         var path = node.Path;
         var label = _utilPathUtils2['default'].getBasename(path);
+        if (!label && node.MetaStore && node.MetaStore.name) {
+            try {
+                label = JSON.parse(node.MetaStore.name);
+            } catch (e) {}
+        }
         if (node.MetaStore && node.MetaStore.selection) {
             return label;
         }
@@ -117,11 +122,6 @@ var CellModel = (function (_Observable) {
                     label = '[' + workspaceRelativePath.WsLabel + '] ' + _utilPathUtils2['default'].getBasename(workspaceRelativePath.Path);
                 }
             });
-        }
-        if (!label && node.MetaStore && node.MetaStore.name) {
-            try {
-                label = JSON.parse(node.MetaStore.name);
-            } catch (e) {}
         }
         return label;
     };

@@ -262,7 +262,6 @@ var MetaNodeProvider = (function () {
                         node.updateProvider(new MetaNodeProvider());
                         output[slug] = node;
                     });
-                    console.log(output);
                     return {
                         v: output
                     };

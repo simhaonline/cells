@@ -85,7 +85,6 @@ var CellCard = (function (_React$Component) {
         var rootNode = this.props.rootNode;
 
         if (rootNode) {
-            console.log(rootNode);
             if (rootNode.getMetadata().has('virtual_root')) {
                 // Use node children instead
                 if (rootNode.isLoaded()) {
@@ -97,7 +96,6 @@ var CellCard = (function (_React$Component) {
                     // Trigger children load
                     rootNode.observe('loaded', function () {
                         var rootNodes = [];
-                        console.log("afterLoad", rootNode);
                         rootNode.getChildren().forEach(function (n) {
                             return rootNodes.push(n);
                         });
