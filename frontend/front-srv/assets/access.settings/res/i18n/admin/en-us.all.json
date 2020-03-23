@@ -98,6 +98,18 @@
   "ds.editor.storage.legend.gcs":{
     "other": "Browse data from a Google Cloud Storage bucket."
   },
+  "ds.editor.storage.legend.versioning":{
+    "other": "Set up versioning policy to keep files contents modifications history. Beware that it will use additional storage space."
+  },
+  "ds.editor.storage.legend.encryption":{
+    "other": "Encryption at rest can be used to make sure files are never stored in clear format inside the storage. This may be useful if you do not trust the storage provider."
+  },
+  "ds.editor.storage.readOnly":{
+    "other": "Read-only mode"
+  },
+  "ds.editor.storage.legend.readOnly":{
+    "other": "Use read-only mode if you require Cells to never write any hidden files and to use native eTags as checksums (this can be necessary for buckets with huge amount of existing data). However, please note that any workspaces created on this datasource should be set as Read Only, as move feature cannot function properly."
+  },
   "ds.editor.new": {
     "other": "New DataSource"
   },

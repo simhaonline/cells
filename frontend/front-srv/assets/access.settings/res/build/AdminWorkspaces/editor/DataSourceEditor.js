@@ -495,6 +495,16 @@ var DataSourceEditor = (function (_React$Component) {
                             _react2['default'].createElement(_materialUi.MenuItem, { value: "aws", primaryText: m('storage.s3.endpoint.amazon') }),
                             _react2['default'].createElement(_materialUi.MenuItem, { value: "custom", primaryText: m('storage.s3.endpoint.custom') })
                         ),
+                        s3Custom === 'custom' && _react2['default'].createElement(
+                            'div',
+                            null,
+                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
+                                    model.StorageConfiguration.customEndpoint = v;
+                                } }),
+                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.region'), value: model.StorageConfiguration.customRegion, onChange: function (e, v) {
+                                    model.StorageConfiguration.customRegion = v;
+                                } })
+                        ),
                         _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
                                 model.ApiKey = v;
                             } }),
@@ -504,16 +514,6 @@ var DataSourceEditor = (function (_React$Component) {
                             _react2['default'].createElement('input', { type: 'hidden', value: 'something' }),
                             _react2['default'].createElement(ModernTextField, { autoComplete: "off", fullWidth: true, type: "password", hintText: m('storage.s3.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
                                     model.ApiSecret = v;
-                                } })
-                        ),
-                        s3Custom === 'custom' && _react2['default'].createElement(
-                            'div',
-                            null,
-                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
-                                    model.StorageConfiguration.customEndpoint = v;
-                                } }),
-                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.region'), value: model.StorageConfiguration.customRegion, onChange: function (e, v) {
-                                    model.StorageConfiguration.customRegion = v;
                                 } })
                         ),
                         _react2['default'].createElement(_DataSourceBucketSelector2['default'], { dataSource: model, hintText: m('storage.s3.bucket') }),
@@ -599,6 +599,11 @@ var DataSourceEditor = (function (_React$Component) {
                         m('datamanagement')
                     ),
                     _react2['default'].createElement(
+                        'div',
+                        { style: styles.legend },
+                        m('storage.legend.versioning')
+                    ),
+                    _react2['default'].createElement(
                         ModernSelectField,
                         { fullWidth: true, value: model.VersioningPolicyName, onChange: function (e, i, v) {
                                 model.VersioningPolicyName = v;
@@ -607,6 +612,28 @@ var DataSourceEditor = (function (_React$Component) {
                         versioningPolicies.map(function (key) {
                             return _react2['default'].createElement(_materialUi.MenuItem, { value: key.Uuid, primaryText: key.Name });
                         })
+                    ),
+                    model.StorageType !== 'LOCAL' && _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(
+                            'div',
+                            { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                            m('storage.legend.readOnly')
+                        ),
+                        _react2['default'].createElement(_materialUi.Toggle, _extends({
+                            label: m('storage.readOnly'),
+                            labelPosition: "right",
+                            toggled: model.StorageConfiguration.readOnly === 'true',
+                            onToggle: function (e, v) {
+                                model.StorageConfiguration.readOnly = v ? 'true' : '';
+                            }
+                        }, ModernStyles.toggleField))
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                        m('storage.legend.encryption')
                     ),
                     _react2['default'].createElement(
                         'div',
