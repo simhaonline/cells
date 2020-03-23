@@ -237,6 +237,9 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			options.Properties["objectsTags"] = objectsTags
 		}
 	}
+	if readOnly, o := syncConfig.StorageConfiguration["readOnly"]; o && readOnly == "true" {
+		options.BrowseOnly = true
+	}
 	if syncConfig.ObjectsBucket == "" {
 		var bucketsFilter string
 		if f, o := syncConfig.StorageConfiguration["bucketsRegexp"]; o {

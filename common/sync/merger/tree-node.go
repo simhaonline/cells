@@ -85,7 +85,7 @@ func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob
 	}
 	wg := &sync.WaitGroup{}
 	throttle := make(chan struct{}, 15)
-	checksumProvider := source.(model.ChecksumProvider)
+	checksumProvider, isCsProvider := source.(model.ChecksumProvider)
 	uri := source.GetEndpointInfo().URI
 
 	err := source.Walk(func(p string, node *tree.Node, err error) {
@@ -108,7 +108,7 @@ func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob
 			log.Logger(context.Background()).Error("Cannot find parent path for node, this is not normal - skipping node!", node.ZapPath())
 			return
 		}
-		if model.NodeRequiresChecksum(node) && checksumProvider != nil {
+		if model.NodeRequiresChecksum(node) && isCsProvider {
 			wg.Add(1)
 			go func() {
 				throttle <- struct{}{}

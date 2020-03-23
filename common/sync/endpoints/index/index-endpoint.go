@@ -25,7 +25,6 @@ package index
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"strings"
 
@@ -57,10 +56,6 @@ func (i *Client) GetEndpointInfo() model.EndpointInfo {
 		RequiresNormalization: false,
 	}
 
-}
-
-func (i *Client) ComputeChecksum(node *tree.Node) error {
-	return fmt.Errorf("not.implemented")
 }
 
 func (i *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {

@@ -25,6 +25,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/md5"
+	"crypto/sha1"
 	"errors"
 	"fmt"
 	"io"
@@ -321,7 +322,7 @@ func (c *Client) createFolderIdsWhileWalking(createdDirs map[string]bool, walknF
 
 	// Do not create hidden files in BrowseOnly mode
 	if c.options.BrowseOnly {
-		return
+		//return
 	}
 	parts := strings.Split(currentDir, "/")
 	max := len(parts)
@@ -513,6 +514,7 @@ func (c *Client) getNodeIdentifier(path string, leaf bool) (uid string, eTag str
 
 func (c *Client) readOrCreateFolderId(folderPath string) (uid string, created minio.ObjectInfo, e error) {
 
+	// Find existing .pydio
 	hiddenPath := fmt.Sprintf("%v/%s", folderPath, servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
 	hiddenPath = strings.TrimLeft(hiddenPath, "/")
 	object, err := c.Mc.GetObject(c.Bucket, hiddenPath, minio.GetObjectOptions{})
@@ -523,24 +525,27 @@ func (c *Client) readOrCreateFolderId(folderPath string) (uid string, created mi
 		uid = buf.String()
 		if len(strings.TrimSpace(uid)) > 0 {
 			log.Logger(c.globalContext).Debug("Read Uuid for folderPath", zap.String("path", folderPath), zap.String("uuid", uid))
-			return uid, minio.ObjectInfo{}, nil
+			return
 		}
 	}
-	// Does not exists
-	// Create dir uuid now
+
+	// Readonly mode, return a stable UUID based on folderPath
+	if c.options.BrowseOnly {
+		stablePath := folderPath
+		if c.options.Properties != nil {
+			if p, o := c.options.Properties["stableUuidPrefix"]; o {
+				stablePath = path.Join(p, stablePath)
+			}
+		}
+		hasher := sha1.New()
+		hasher.Write([]byte(stablePath))
+		uid = fmt.Sprintf("%x", hasher.Sum(nil))
+		return
+	}
+
+	// Does not exists - create dir uuid and .pydio now
 	uid = uuid.New()
 	eTag := model.StringContentToETag(uid)
-
-	if c.options.BrowseOnly {
-		// Return fake file without actually creating it
-		return uid, minio.ObjectInfo{
-			ETag:         eTag,
-			Key:          hiddenPath,
-			LastModified: time.Now(),
-			Size:         36,
-			ContentType:  "text/plain",
-		}, nil
-	}
 	log.Logger(c.globalContext).Info("Create Hidden File for folder", zap.String("path", hiddenPath))
 	size, _ := c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
 	created = minio.ObjectInfo{
@@ -550,7 +555,7 @@ func (c *Client) readOrCreateFolderId(folderPath string) (uid string, created mi
 		Size:         size,
 		ContentType:  "text/plain",
 	}
-	return uid, created, nil
+	return
 
 }
 
@@ -576,17 +581,6 @@ func (c *Client) getFileHash(path string) (uid string, hash string, metaSize int
 		}
 	}
 	etag := strings.Trim(objectInfo.ETag, "\"")
-	/*
-		if len(etag) == 0 || etag == common.DefaultEtag {
-			fmt.Println("getFileHash - Recompute ETAG")
-			var etagE error
-			objectInfo, etagE = c.s3forceComputeEtag(objectInfo)
-			if etagE != nil {
-				return uid, "", metaSize, etagE
-			}
-			etag = strings.Trim(objectInfo.ETag, "\"")
-		}
-	*/
 	return uid, etag, metaSize, nil
 }
 
@@ -597,10 +591,6 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 	doneChan := make(chan bool)
 
 	log.Logger(c.globalContext).Debug("Watching Bucket", zap.String("bucket", c.Bucket))
-	// Extract bucket and object.
-	//if err := isValidBucketName(bucket); err != nil {
-	//	return nil, err
-	//}
 
 	// Flag set to set the notification.
 	var events []string
@@ -780,10 +770,5 @@ func (c *Client) isIgnoredFile(path string, record ...minio.NotificationEvent) b
 	if len(record) > 0 && strings.Contains(record[0].Source.UserAgent, UserAgentAppName) {
 		return true
 	}
-	/*
-		if model.IsIgnoredFile(path) {
-			return true
-		}
-	*/
 	return false
 }

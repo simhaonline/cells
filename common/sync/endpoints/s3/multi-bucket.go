@@ -376,7 +376,14 @@ func (m *MultiBucketClient) getClient(p string) (c *Client, bucket string, inter
 		if cl, ok := m.bucketClients[bucket]; ok {
 			c = cl
 		} else {
-			c, e = NewClient(m.globalContext, m.host, m.key, m.secret, bucket, "", m.secure, m.options)
+			o := m.options
+			if o.BrowseOnly {
+				if o.Properties == nil {
+					o.Properties = make(map[string]string)
+				}
+				o.Properties["stableUuidPrefix"] = bucket
+			}
+			c, e = NewClient(m.globalContext, m.host, m.key, m.secret, bucket, "", m.secure, o)
 			if e != nil {
 				return
 			}
