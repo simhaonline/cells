@@ -234,7 +234,12 @@ func (c *Client) GetReaderOn(path string) (out io.ReadCloser, err error) {
 
 func (c *Client) ComputeChecksum(node *tree.Node) error {
 	if c.skipRecomputeEtagByCopy {
-		return fmt.Errorf("skipping recompute etag by copy, not supported by storage")
+		log.Logger(c.globalContext).Debug("skipping recompute ETag by copy, storage does not support it, keep original value", node.Zap())
+		return nil
+	}
+	if c.options.BrowseOnly {
+		log.Logger(c.globalContext).Debug("skipping recompute ETag by copy, storage is readonly, keep original value", node.Zap())
+		return nil
 	}
 	p := c.getFullPath(node.GetPath())
 	if newInfo, err := c.s3forceComputeEtag(minio.ObjectInfo{Key: p, Size: node.Size}); err == nil {
