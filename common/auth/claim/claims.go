@@ -52,17 +52,6 @@ type Claims struct {
 }
 
 // Decode Subject field of the claims
-func (c *Claims) DecodeUserUuid() (string, error) {
-
-	sub, err := c.DecodeSubject()
-	if err != nil {
-		return "", err
-	}
-
-	return sub.UserId, nil
-}
-
-// Decode Subject field of the claims
 func (c *Claims) DecodeSubject() (*IDTokenSubject, error) {
 	sub := c.Subject
 	data, err := base64.RawURLEncoding.DecodeString(sub)
