@@ -118,6 +118,9 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 	} else if customEndpoint != "" {
 		params = append(params, customEndpoint)
 		log.Logger(ctx).Info("Starting gateway objects service " + minioServiceName + " to " + customEndpoint)
+	} else if gateway == "s3" && customEndpoint == "" {
+		params = append(params, "https://s3.amazonaws.com", "pydio-ds")
+		log.Logger(ctx).Info("Starting gateway objects service " + minioServiceName + " to Amazon S3")
 	}
 
 	os.Setenv("MINIO_ACCESS_KEY", accessKey)
