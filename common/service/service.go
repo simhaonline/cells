@@ -472,7 +472,7 @@ func (s *service) ForkStart(retries ...int) {
 	}
 	log.Logger(ctx).Debug("Started SubProcess: " + name)
 
-	if err := cmd.Wait(); err != nil {
+	if err := cmd.Wait(); err != nil && err.Error() != "signal: interrupt" {
 		r := 0
 		if len(retries) > 0 {
 			r = retries[0]

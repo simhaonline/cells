@@ -30,6 +30,7 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/micro/go-micro"
 	"go.uber.org/zap"
@@ -117,7 +118,7 @@ func (c *ChildrenRunner) StartFromInitialConf(ctx context.Context, cfg common.Co
 }
 
 // Start starts a forked process for a new source
-func (c *ChildrenRunner) Start(ctx context.Context, source string) error {
+func (c *ChildrenRunner) Start(ctx context.Context, source string, retries ...int) error {
 
 	name := c.childPrefix + source
 	cmd := exec.CommandContext(ctx, os.Args[0], buildForkStartParams(name)...)
@@ -165,9 +166,21 @@ func (c *ChildrenRunner) Start(ctx context.Context, source string) error {
 	}
 
 	if err := cmd.Wait(); err != nil {
-		if err.Error() != "signal: killed" {
+		if err.Error() != "signal: killed" && err.Error() != "signal: interrupt" {
 			log.Logger(serviceCtx).Error("SubProcess was not killed properly: " + err.Error())
 			registry.Default.SetServiceStopped(name)
+			c.mutex.Lock()
+			delete(c.services, source)
+			c.mutex.Unlock()
+			r := 0
+			if len(retries) > 0 {
+				r = retries[0]
+			}
+			if r < 3 {
+				log.Logger(serviceCtx).Error("Restarting service in 3s...")
+				<-time.After(3 * time.Second)
+				return c.Start(ctx, source, r+1)
+			}
 		}
 		return err
 	}
