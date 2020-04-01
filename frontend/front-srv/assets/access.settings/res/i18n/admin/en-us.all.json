@@ -110,6 +110,12 @@
   "ds.editor.storage.legend.readOnly":{
     "other": "Use read-only mode if you require Cells to never write any hidden files and to use native eTags as checksums (this can be necessary for buckets with huge amount of existing data). However, please note that any workspaces created on this datasource should be set as Read Only, as move feature cannot function properly."
   },
+  "ds.editor.storage.checksumMapper":{
+    "other": "Attach checksum to data"
+  },
+  "ds.editor.storage.legend.checksumMapper":{
+    "other": "True by default, files checksums (md5) are attached as metadata to objects inside the storage, or an in-place copy is simply performed to recompute proper checksum when storage allows it. Switch off if you wish to prevent modifying objects metadata, and store checksums inside an external table (will be stored in DB)"
+  },
   "ds.editor.new": {
     "other": "New DataSource"
   },

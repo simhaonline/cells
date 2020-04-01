@@ -362,6 +362,18 @@ class DataSourceEditor extends React.Component{
                         })}
                     </ModernSelectField>
 
+                    {(!model.StorageConfiguration.readOnly || model.StorageConfiguration.readOnly !== 'true') &&
+                    <div>
+                        <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.checksumMapper')}</div>
+                        <Toggle
+                            label={m('storage.checksumMapper')}
+                            labelPosition={"right"}
+                            toggled={!model.StorageConfiguration.checksumMapper || model.StorageConfiguration.checksumMapper !== 'dao'}
+                            onToggle={(e,v)=>{model.StorageConfiguration.checksumMapper = (v ? '' : 'dao');}}
+                            {...ModernStyles.toggleField}
+                        />
+                    </div>
+                    }
                     {model.StorageType !== 'LOCAL' &&
                     <div>
                         <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.readOnly')}</div>
@@ -374,7 +386,6 @@ class DataSourceEditor extends React.Component{
                         />
                     </div>
                     }
-
                     <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.encryption')}</div>
                     <div style={styles.toggleDiv}>
                         <Toggle labelPosition={"right"} label={m('enc') + (cannotEnableEnc ? ' (' + pydio.MessageHash['ajxp_admin.ds.encryption.key.emptyState']+')' :'')} toggled={model.EncryptionMode === "MASTER"} onToggle={(e,v)=>{this.toggleEncryption(v)}}

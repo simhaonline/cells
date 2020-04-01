@@ -30,6 +30,8 @@ import (
 	sync2 "sync"
 	"time"
 
+	"github.com/pydio/cells/data/source/sync"
+
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
@@ -285,6 +287,13 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		if syncConfig.StorageType == object.StorageType_GCS {
 			s3client.SkipRecomputeEtagByCopy()
 		}
+		// Test in-mem checksum mapper
+		if dao := servicecontext.GetDAO(s.globalCtx); dao != nil {
+			if csm, ok := dao.(s3.ChecksumMapper); ok {
+				s3client.SetChecksumMapper(csm)
+			}
+		}
+
 		source = s3client
 	}
 
@@ -415,7 +424,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		subCtx := context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME)
 		theTask := req.Task
 		autoClient := tasks.NewTaskReconnectingClient(subCtx)
-		taskChan := make(chan interface{})
+		taskChan := make(chan interface{}, 1000)
 		autoClient.StartListening(taskChan)
 
 		theTask.StatusMessage = "Starting"
@@ -512,13 +521,39 @@ func (s *Handler) CleanResourcesBeforeDelete(ctx context.Context, request *objec
 
 	s.syncTask.Shutdown()
 
+	var mm []string
+	var ee []string
+
+	if dao := servicecontext.GetDAO(ctx); dao != nil {
+		if d, o := dao.(sync.DAO); o {
+			if e, m := d.CleanResourcesOnDeletion(); e != nil {
+				ee = append(ee, e.Error())
+			} else {
+				mm = append(mm, m)
+			}
+
+		}
+	}
+
 	serviceName := servicecontext.GetServiceName(ctx)
 	dsName := strings.TrimPrefix(serviceName, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_)
 	taskClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
 	log.Logger(ctx).Info("Removing job for datasource " + dsName)
-	_, e := taskClient.DeleteJob(ctx, &jobs.DeleteJobRequest{
+	if _, e := taskClient.DeleteJob(ctx, &jobs.DeleteJobRequest{
 		JobID: "resync-ds-" + dsName,
-	})
-	return e
+	}); e != nil {
+		ee = append(ee, e.Error())
+	} else {
+		mm = append(mm, "Removed associated job for datasource")
+	}
+	if len(ee) > 0 {
+		response.Success = false
+		return fmt.Errorf(strings.Join(ee, ", "))
+	} else if len(mm) > 0 {
+		response.Success = true
+		response.Message = strings.Join(mm, ", ")
+		return nil
+	}
 
+	return nil
 }

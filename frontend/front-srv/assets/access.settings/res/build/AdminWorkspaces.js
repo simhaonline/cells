@@ -20478,6 +20478,23 @@ var DataSourceEditor = (function (_React$Component) {
                             return _react2['default'].createElement(_materialUi.MenuItem, { value: key.Uuid, primaryText: key.Name });
                         })
                     ),
+                    (!model.StorageConfiguration.readOnly || model.StorageConfiguration.readOnly !== 'true') && _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(
+                            'div',
+                            { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                            m('storage.legend.checksumMapper')
+                        ),
+                        _react2['default'].createElement(_materialUi.Toggle, _extends({
+                            label: m('storage.checksumMapper'),
+                            labelPosition: "right",
+                            toggled: !model.StorageConfiguration.checksumMapper || model.StorageConfiguration.checksumMapper !== 'dao',
+                            onToggle: function (e, v) {
+                                model.StorageConfiguration.checksumMapper = v ? '' : 'dao';
+                            }
+                        }, ModernStyles.toggleField))
+                    ),
                     model.StorageType !== 'LOCAL' && _react2['default'].createElement(
                         'div',
                         null,
