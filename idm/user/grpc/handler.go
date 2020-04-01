@@ -305,6 +305,7 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest, re
 		return err
 	}
 	wg.Wait()
+	close(taskChan)
 	response.RowsDeleted = numRows
 	return nil
 }
