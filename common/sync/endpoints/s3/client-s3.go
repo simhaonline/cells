@@ -65,7 +65,9 @@ type Client struct {
 	options                     model.EndpointOptions
 	globalContext               context.Context
 	plainSizeComputer           func(nodeUUID string) (int64, error)
-	checksumMapper              ChecksumMapper
+
+	checksumMapper       ChecksumMapper
+	purgeMapperAfterWalk bool
 }
 
 func NewClient(ctx context.Context, host string, key string, secret string, bucket string, rootPath string, secure bool, options model.EndpointOptions) (*Client, error) {
@@ -113,8 +115,9 @@ func (c *Client) SkipRecomputeEtagByCopy() {
 
 // SetChecksumMapper passes a ChecksumMapper storage that will prevent in-place copy of objects or
 // metadata modification and store md5 for a given eTag locally instead.
-func (c *Client) SetChecksumMapper(mapper ChecksumMapper) {
+func (c *Client) SetChecksumMapper(mapper ChecksumMapper, purgeAfterWalk bool) {
 	c.checksumMapper = mapper
+	c.purgeMapperAfterWalk = purgeAfterWalk
 }
 
 func (c *Client) normalize(path string) string {
@@ -278,7 +281,7 @@ func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 
 	ctx := context.Background()
 	var eTags []string
-	collect := (root == "" || root == "/") && recursive && c.checksumMapper != nil
+	collect := (root == "" || root == "/") && recursive && c.checksumMapper != nil && c.purgeMapperAfterWalk
 	wrappingFunc := func(path string, info *S3FileInfo, err error) error {
 		path = c.getLocalPath(path)
 		node, test := c.loadNode(ctx, path, !info.IsDir())
@@ -295,14 +298,16 @@ func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 		} else {
 			node.Uuid = strings.Trim(info.Object.ETag, "\"")
 		}
-		if collect {
+		if collect && node.IsLeaf() {
 			eTags = append(eTags, node.Etag)
 		}
 		walknFc(path, node, nil)
 		return nil
 	}
-	err = c.actualLsRecursive(recursive, c.getFullPath(root), wrappingFunc)
-	if err == nil && collect {
+	if err = c.actualLsRecursive(recursive, c.getFullPath(root), wrappingFunc); err != nil {
+		return err
+	}
+	if collect {
 		go func() {
 			// We know all eTags, purge other from mapper
 			if deleted := c.checksumMapper.Purge(eTags); deleted > 0 {
@@ -310,7 +315,7 @@ func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 			}
 		}()
 	}
-	return err
+	return nil
 }
 
 func (c *Client) actualLsRecursive(recursive bool, recursivePath string, walknFc func(path string, info *S3FileInfo, err error) error) (err error) {

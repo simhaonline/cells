@@ -2,6 +2,7 @@ package s3
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"path"
 	"regexp"
@@ -40,8 +41,10 @@ type MultiBucketClient struct {
 	bucketClients map[string]*Client
 
 	// To be passed to clients
-	plainSizeComputer     func(nodeUUID string) (int64, error)
-	requiresNormalization bool
+	plainSizeComputer       func(nodeUUID string) (int64, error)
+	requiresNormalization   bool
+	skipRecomputeEtagByCopy bool
+	checksumMapper          ChecksumMapper
 }
 
 // NewMultiBucketClient creates an s3 wrapped client that lists buckets as top level folders
@@ -112,6 +115,8 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 		return e
 	}
 	if b == "" {
+		collect := recursive && c.checksumMapper != nil
+		var eTags []string
 		// List buckets first
 		bb, er := c.Mc.ListBucketsWithContext(context.Background())
 		if er != nil {
@@ -162,12 +167,25 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 			if recursive {
 				e := bC.Walk(func(iPath string, node *tree.Node, err error) {
 					wrapped := m.patchPath(bucket.Name, node, iPath)
+					if collect && node.IsLeaf() {
+						eTags = append(eTags, node.Etag)
+					}
 					walknFc(wrapped, node, err)
 				}, "", recursive)
 				if e != nil {
 					return e
 				}
 			}
+		}
+		if collect {
+			go func() {
+				// We know all eTags from this datasource, now purge unused from mapper
+				if deleted := c.checksumMapper.Purge(eTags); deleted > 0 {
+					log.Logger(c.globalContext).Info(fmt.Sprintf("Purged %d eTag(s) from ChecksumMapper", deleted))
+				} else {
+					log.Logger(c.globalContext).Info(fmt.Sprintf("ChecksumMapper nothing to purge"))
+				}
+			}()
 		}
 		return nil
 	} else {
@@ -367,6 +385,18 @@ func (m *MultiBucketClient) SetServerRequiresNormalization() {
 	m.mainClient.SetServerRequiresNormalization()
 }
 
+func (m *MultiBucketClient) SetChecksumMapper(cs ChecksumMapper) {
+	m.checksumMapper = cs
+	m.mainClient.SetChecksumMapper(cs, false)
+}
+
+// SkipRecomputeEtagByCopy sets a special behavior to avoir recomputing etags by in-place copying
+// objects on storages that do not support this feature
+func (m *MultiBucketClient) SkipRecomputeEtagByCopy() {
+	m.skipRecomputeEtagByCopy = true
+	m.mainClient.skipRecomputeEtagByCopy = true
+}
+
 func (m *MultiBucketClient) getClient(p string) (c *Client, bucket string, internal string, e error) {
 	p = strings.Trim(p, "/")
 	parts := strings.Split(p, "/")
@@ -392,6 +422,12 @@ func (m *MultiBucketClient) getClient(p string) (c *Client, bucket string, inter
 			}
 			if m.requiresNormalization {
 				c.SetServerRequiresNormalization()
+			}
+			if m.checksumMapper != nil {
+				c.SetChecksumMapper(m.checksumMapper, false)
+			}
+			if m.skipRecomputeEtagByCopy {
+				c.SkipRecomputeEtagByCopy()
 			}
 			m.bucketClients[bucket] = c
 		}

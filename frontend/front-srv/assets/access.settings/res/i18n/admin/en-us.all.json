@@ -111,10 +111,13 @@
     "other": "Use read-only mode if you require Cells to never write any hidden files and to use native eTags as checksums (this can be necessary for buckets with huge amount of existing data). However, please note that any workspaces created on this datasource should be set as Read Only, as move feature cannot function properly."
   },
   "ds.editor.storage.checksumMapper":{
-    "other": "Attach checksum to data"
+    "other": "Store checksums locally (do not modify objects)"
+  },
+  "ds.editor.storage.nativeEtags":{
+    "other": "Use Native Etags (will disable Desktop Sync)"
   },
   "ds.editor.storage.legend.checksumMapper":{
-    "other": "True by default, files checksums (md5) are attached as metadata to objects inside the storage, or an in-place copy is simply performed to recompute proper checksum when storage allows it. Switch off if you wish to prevent modifying objects metadata, and store checksums inside an external table (will be stored in DB)"
+    "other": "For proper changes detection, files checksums (md5) are computed by Cells (or by the storage with an in-place copy, when possible) and attached as metadata to objects. For best performances, use Native ETags flag to keep the storage original values, but beware that this will disable Desktop Synchronization on this datasource. You can also simply prevent objects modification, while still computing checksums, by storing metadata locally."
   },
   "ds.editor.new": {
     "other": "New DataSource"
@@ -228,7 +231,7 @@
     "other": "Synchronize S3 tags from buckets or objects (use  a comma-separated list of patterns to match). Please note that this will perform additional requests to storage and may slow down sync process. Original tags will be mapped to pydio:s3-bucket-tag-NAME and pydio:s3-object-tag-NAME internally."
   },
   "ds.editor.storage.s3.bucketsTags": {
-    "other": "Buckets Tags"
+    "other": "Buckets Tags (multiple buckets enabled)"
   },
   "ds.editor.storage.s3.objectsTags": {
     "other": "Objects Tags"

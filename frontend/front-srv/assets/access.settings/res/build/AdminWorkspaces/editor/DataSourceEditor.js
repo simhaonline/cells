@@ -530,6 +530,7 @@ var DataSourceEditor = (function (_React$Component) {
                                 { style: { flex: 1, marginRight: 5 } },
                                 _react2['default'].createElement(ModernTextField, {
                                     fullWidth: true,
+                                    disabled: !!model.StorageConfiguration.ObjectsBucket,
                                     hintText: m('storage.s3.bucketsTags'),
                                     value: model.StorageConfiguration.bucketsTags || '',
                                     onChange: function (e, v) {
@@ -598,38 +599,6 @@ var DataSourceEditor = (function (_React$Component) {
                         { style: styles.title },
                         m('datamanagement')
                     ),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: styles.legend },
-                        m('storage.legend.versioning')
-                    ),
-                    _react2['default'].createElement(
-                        ModernSelectField,
-                        { fullWidth: true, value: model.VersioningPolicyName, onChange: function (e, i, v) {
-                                model.VersioningPolicyName = v;
-                            } },
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: undefined, primaryText: m('versioning.disabled') }),
-                        versioningPolicies.map(function (key) {
-                            return _react2['default'].createElement(_materialUi.MenuItem, { value: key.Uuid, primaryText: key.Name });
-                        })
-                    ),
-                    (!model.StorageConfiguration.readOnly || model.StorageConfiguration.readOnly !== 'true') && _react2['default'].createElement(
-                        'div',
-                        null,
-                        _react2['default'].createElement(
-                            'div',
-                            { style: _extends({}, styles.legend, { paddingTop: 20 }) },
-                            m('storage.legend.checksumMapper')
-                        ),
-                        _react2['default'].createElement(_materialUi.Toggle, _extends({
-                            label: m('storage.checksumMapper'),
-                            labelPosition: "right",
-                            toggled: !model.StorageConfiguration.checksumMapper || model.StorageConfiguration.checksumMapper !== 'dao',
-                            onToggle: function (e, v) {
-                                model.StorageConfiguration.checksumMapper = v ? '' : 'dao';
-                            }
-                        }, ModernStyles.toggleField))
-                    ),
                     model.StorageType !== 'LOCAL' && _react2['default'].createElement(
                         'div',
                         null,
@@ -646,6 +615,50 @@ var DataSourceEditor = (function (_React$Component) {
                                 model.StorageConfiguration.readOnly = v ? 'true' : '';
                             }
                         }, ModernStyles.toggleField))
+                    ),
+                    (!model.StorageConfiguration.readOnly || model.StorageConfiguration.readOnly !== 'true') && _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(
+                            'div',
+                            { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                            m('storage.legend.checksumMapper')
+                        ),
+                        _react2['default'].createElement(_materialUi.Toggle, _extends({
+                            label: m('storage.nativeEtags'),
+                            labelPosition: "right",
+                            toggled: model.StorageConfiguration.nativeEtags,
+                            onToggle: function (e, v) {
+                                model.StorageConfiguration.nativeEtags = v ? 'true' : '';
+                            }
+                        }, ModernStyles.toggleField)),
+                        !model.StorageConfiguration.nativeEtags && _react2['default'].createElement(
+                            'div',
+                            null,
+                            _react2['default'].createElement(_materialUi.Toggle, _extends({
+                                label: m('storage.checksumMapper'),
+                                labelPosition: "right",
+                                toggled: model.StorageConfiguration.checksumMapper === 'dao',
+                                onToggle: function (e, v) {
+                                    model.StorageConfiguration.checksumMapper = v ? 'dao' : '';
+                                }
+                            }, ModernStyles.toggleField))
+                        )
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.legend, { paddingTop: 20 }) },
+                        m('storage.legend.versioning')
+                    ),
+                    _react2['default'].createElement(
+                        ModernSelectField,
+                        { fullWidth: true, value: model.VersioningPolicyName, onChange: function (e, i, v) {
+                                model.VersioningPolicyName = v;
+                            } },
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: undefined, primaryText: m('versioning.disabled') }),
+                        versioningPolicies.map(function (key) {
+                            return _react2['default'].createElement(_materialUi.MenuItem, { value: key.Uuid, primaryText: key.Name });
+                        })
                     ),
                     _react2['default'].createElement(
                         'div',

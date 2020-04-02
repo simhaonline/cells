@@ -319,6 +319,7 @@ class DataSourceEditor extends React.Component{
                                 <div style={{flex:1, marginRight: 5}}>
                                     <ModernTextField
                                         fullWidth={true}
+                                        disabled={!!model.StorageConfiguration.ObjectsBucket}
                                         hintText={m('storage.s3.bucketsTags')}
                                         value={model.StorageConfiguration.bucketsTags || ''}
                                         onChange={(e,v)=>{model.StorageConfiguration.bucketsTags = v;}}/>
@@ -354,26 +355,7 @@ class DataSourceEditor extends React.Component{
                 </Paper>
                 <Paper zDepth={1} style={styles.section}>
                     <div style={styles.title}>{m('datamanagement')}</div>
-                    <div style={styles.legend}>{m('storage.legend.versioning')}</div>
-                    <ModernSelectField fullWidth={true} value={model.VersioningPolicyName} onChange={(e,i,v)=>{model.VersioningPolicyName = v}}>
-                        <MenuItem value={undefined} primaryText={m('versioning.disabled')}/>
-                        {versioningPolicies.map(key => {
-                            return <MenuItem value={key.Uuid} primaryText={key.Name}/>
-                        })}
-                    </ModernSelectField>
 
-                    {(!model.StorageConfiguration.readOnly || model.StorageConfiguration.readOnly !== 'true') &&
-                    <div>
-                        <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.checksumMapper')}</div>
-                        <Toggle
-                            label={m('storage.checksumMapper')}
-                            labelPosition={"right"}
-                            toggled={!model.StorageConfiguration.checksumMapper || model.StorageConfiguration.checksumMapper !== 'dao'}
-                            onToggle={(e,v)=>{model.StorageConfiguration.checksumMapper = (v ? '' : 'dao');}}
-                            {...ModernStyles.toggleField}
-                        />
-                    </div>
-                    }
                     {model.StorageType !== 'LOCAL' &&
                     <div>
                         <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.readOnly')}</div>
@@ -386,6 +368,39 @@ class DataSourceEditor extends React.Component{
                         />
                     </div>
                     }
+
+                    {(!model.StorageConfiguration.readOnly || model.StorageConfiguration.readOnly !== 'true') &&
+                    <div>
+                        <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.checksumMapper')}</div>
+                        <Toggle
+                            label={m('storage.nativeEtags')}
+                            labelPosition={"right"}
+                            toggled={model.StorageConfiguration.nativeEtags}
+                            onToggle={(e,v)=>{model.StorageConfiguration.nativeEtags = (v ? 'true' : '');}}
+                            {...ModernStyles.toggleField}
+                        />
+                        {!model.StorageConfiguration.nativeEtags &&
+                            <div>
+                                <Toggle
+                                    label={m('storage.checksumMapper')}
+                                    labelPosition={"right"}
+                                    toggled={model.StorageConfiguration.checksumMapper === 'dao'}
+                                    onToggle={(e,v)=>{model.StorageConfiguration.checksumMapper = (v ? 'dao' : '');}}
+                                {...ModernStyles.toggleField}
+                                />
+                            </div>
+                        }
+                    </div>
+                    }
+
+                    <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.versioning')}</div>
+                    <ModernSelectField fullWidth={true} value={model.VersioningPolicyName} onChange={(e,i,v)=>{model.VersioningPolicyName = v}}>
+                        <MenuItem value={undefined} primaryText={m('versioning.disabled')}/>
+                        {versioningPolicies.map(key => {
+                            return <MenuItem value={key.Uuid} primaryText={key.Name}/>
+                        })}
+                    </ModernSelectField>
+
                     <div style={{...styles.legend, paddingTop: 20}}>{m('storage.legend.encryption')}</div>
                     <div style={styles.toggleDiv}>
                         <Toggle labelPosition={"right"} label={m('enc') + (cannotEnableEnc ? ' (' + pydio.MessageHash['ajxp_admin.ds.encryption.key.emptyState']+')' :'')} toggled={model.EncryptionMode === "MASTER"} onToggle={(e,v)=>{this.toggleEncryption(v)}}

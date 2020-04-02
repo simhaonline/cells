@@ -242,6 +242,10 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	if readOnly, o := syncConfig.StorageConfiguration["readOnly"]; o && readOnly == "true" {
 		options.BrowseOnly = true
 	}
+	var keepNativeEtags bool
+	if k, o := syncConfig.StorageConfiguration["nativeEtags"]; o && k == "true" {
+		keepNativeEtags = true
+	}
 	if syncConfig.ObjectsBucket == "" {
 		var bucketsFilter string
 		if f, o := syncConfig.StorageConfiguration["bucketsRegexp"]; o {
@@ -264,6 +268,15 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		if computer != nil {
 			multiClient.SetPlainSizeComputer(computer)
 		}
+		if dao := servicecontext.GetDAO(s.globalCtx); dao != nil {
+			if csm, ok := dao.(s3.ChecksumMapper); ok {
+				multiClient.SetChecksumMapper(csm)
+			}
+		}
+		if keepNativeEtags {
+			multiClient.SkipRecomputeEtagByCopy()
+		}
+
 		source = multiClient
 
 	} else {
@@ -284,13 +297,12 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		if computer != nil {
 			s3client.SetPlainSizeComputer(computer)
 		}
-		if syncConfig.StorageType == object.StorageType_GCS {
+		if syncConfig.StorageType == object.StorageType_GCS || keepNativeEtags {
 			s3client.SkipRecomputeEtagByCopy()
 		}
-		// Test in-mem checksum mapper
 		if dao := servicecontext.GetDAO(s.globalCtx); dao != nil {
 			if csm, ok := dao.(s3.ChecksumMapper); ok {
-				s3client.SetChecksumMapper(csm)
+				s3client.SetChecksumMapper(csm, true)
 			}
 		}
 
