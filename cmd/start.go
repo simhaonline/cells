@@ -26,14 +26,15 @@ import (
 	"os"
 	"os/user"
 	"regexp"
+	"strings"
 	"sync"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/registry"
 )
 
@@ -84,12 +85,16 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 			}
 		}
 
-		// Removing install services
-		registry.Default.Filter(func(s registry.Service) bool {
-			re := regexp.MustCompile(common.SERVICE_INSTALL)
+		plugins.Init()
 
-			if re.MatchString(s.Name()) {
-				return true
+		// Filtering out services by exclusion
+		registry.Default.Filter(func(s registry.Service) bool {
+			for _, exclude := range FilterStartExclude {
+				re := regexp.MustCompile(exclude)
+
+				if strings.HasPrefix(s.Name(), exclude) || re.MatchString(s.Name()) {
+					return true
+				}
 			}
 
 			return false
@@ -155,6 +160,8 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 		} else {
 			allServices = s
 		}
+
+		initServices()
 
 		return nil
 	},
