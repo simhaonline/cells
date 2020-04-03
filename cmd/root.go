@@ -25,6 +25,8 @@ import (
 	"fmt"
 	log2 "log"
 	"os"
+	"regexp"
+	"strings"
 
 	microregistry "github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/server"
@@ -35,6 +37,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/nats"
@@ -118,19 +121,44 @@ You can customize the various storage locations with the following ENV variables
 		case "version", "completion", "doc", "help", "bash", "zsh", os.Args[0]:
 			return
 		default:
-			// Initialise the default registry
-			handleRegistry()
-
-			// Initialise the default broker
-			handleBroker()
-
-			// Initialise the default transport
-			handleTransport()
-
-			// Making sure we capture the signals
-			handleSignals()
+			break
 		}
 
+		// Initialise the default registry
+		handleRegistry()
+
+		// Initialise the default broker
+		handleBroker()
+
+		// Initialise the default transport
+		handleTransport()
+
+		// Making sure we capture the signals
+		handleSignals()
+
+		plugins.Init()
+
+		// Filtering out services by exclusion
+		registry.Default.Filter(func(s registry.Service) bool {
+			for _, exclude := range FilterStartExclude {
+				re := regexp.MustCompile(exclude)
+
+				if strings.HasPrefix(s.Name(), exclude) || re.MatchString(s.Name()) {
+					return true
+				}
+			}
+
+			return false
+		})
+
+		initServices()
+
+		if s, err := registry.Default.ListServices(); err != nil {
+			cmd.Print("Could not retrieve list of services")
+			os.Exit(0)
+		} else {
+			allServices = s
+		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()

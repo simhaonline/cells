@@ -39,7 +39,6 @@ import (
 	"github.com/pydio/cells/common/caddy"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
@@ -129,10 +128,6 @@ var installCmd = &cobra.Command{
 			return err
 		}
 
-		plugins.InstallInit()
-
-		initServices()
-
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -200,10 +195,6 @@ var installCmd = &cobra.Command{
 		cmd.Println("")
 		cmd.Println(promptui.IconGood + "\033[1m Installation Finished: server will restart\033[0m")
 		cmd.Println("")
-
-		plugins.Init()
-
-		initServices()
 
 		// Re-building allServices list
 		if s, err := registry.Default.ListServices(); err != nil {

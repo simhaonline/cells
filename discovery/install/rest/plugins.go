@@ -34,7 +34,7 @@ var (
 )
 
 func init() {
-	plugins.RegisterInstall(func() {
+	plugins.Register(func() {
 		service.NewService(
 			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_INSTALL),
 			service.Tag(common.SERVICE_TAG_DISCOVERY),
@@ -42,6 +42,7 @@ func init() {
 			service.WithWeb(func() service.WebHandler {
 				return new(Handler)
 			}),
+			//service.WithWebAuth(),
 			func(o *service.ServiceOptions) {
 				o.BeforeStart = append(o.BeforeStart, func(s service.Service) error {
 
