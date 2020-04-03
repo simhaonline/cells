@@ -437,10 +437,10 @@ func (c *Client) s3forceComputeEtag(objectInfo minio.ObjectInfo) (minio.ObjectIn
 		// We use a checksum mapper : do not copy object in-place!
 		eTag := strings.Trim(oi.ETag, "\"")
 		if cs, ok := c.checksumMapper.Get(eTag); ok {
-			log.Logger(c.globalContext).Info("Read eTag from ChecksumMapper " + cs)
+			log.Logger(c.globalContext).Debug("Read eTag from ChecksumMapper " + cs)
 			objectInfo.ETag = cs
 		} else {
-			log.Logger(c.globalContext).Info("Storing eTag inside ChecksumMapper for " + eTag)
+			log.Logger(c.globalContext).Debug("Storing eTag inside ChecksumMapper for " + eTag)
 			reader, e := c.GetReaderOn(objectInfo.Key)
 			if e != nil {
 				return objectInfo, e
@@ -451,7 +451,7 @@ func (c *Client) s3forceComputeEtag(objectInfo minio.ObjectInfo) (minio.ObjectIn
 				return objectInfo, err
 			}
 			checksum := fmt.Sprintf("%x", h.Sum(nil))
-			log.Logger(c.globalContext).Info("Stored inside ChecksumMapper " + checksum)
+			log.Logger(c.globalContext).Debug("Stored inside ChecksumMapper " + checksum)
 			c.checksumMapper.Set(eTag, checksum)
 			objectInfo.ETag = checksum
 		}
