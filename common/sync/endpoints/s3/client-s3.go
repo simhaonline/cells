@@ -280,16 +280,14 @@ func (c *Client) ComputeChecksum(node *tree.Node) error {
 func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 
 	ctx := context.Background()
+	t := time.Now()
+	defer func() {
+		log.Logger(ctx).Info("S3 Walk Operation + Stats took", zap.Duration("d", time.Now().Sub(t)))
+	}()
 	var eTags []string
 	collect := (root == "" || root == "/") && recursive && c.checksumMapper != nil && c.purgeMapperAfterWalk
-	wrappingFunc := func(path string, info *S3FileInfo, err error) error {
-		path = c.getLocalPath(path)
-		node, test := c.loadNode(ctx, path, !info.IsDir())
-		if test != nil || node == nil {
-			// Ignoring node not found
-			return nil
-		}
 
+	batchWrapper := func(path string, info *S3FileInfo, node *tree.Node) {
 		node.MTime = info.ModTime().Unix()
 		node.Size = info.Size()
 		node.Mode = int32(info.Mode())
@@ -302,11 +300,38 @@ func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 			eTags = append(eTags, node.Etag)
 		}
 		walknFc(path, node, nil)
+	}
+	batcher := &statBatcher{size: 50, walker: batchWrapper, c: c, ctx: ctx}
+
+	wrappingFunc := func(path string, info *S3FileInfo, err error) error {
+		path = c.getLocalPath(path)
+		batcher.push(&input{path: path, info: info})
+		/*
+			node, test := c.loadNode(ctx, path, !info.IsDir())
+			if test != nil || node == nil {
+				// Ignoring node not found
+				return nil
+			}
+
+			node.MTime = info.ModTime().Unix()
+			node.Size = info.Size()
+			node.Mode = int32(info.Mode())
+			if !info.IsDir() {
+				node.Etag = strings.Trim(info.Object.ETag, "\"")
+			} else {
+				node.Uuid = strings.Trim(info.Object.ETag, "\"")
+			}
+			if collect && node.IsLeaf() {
+				eTags = append(eTags, node.Etag)
+			}
+			walknFc(path, node, nil)
+		*/
 		return nil
 	}
 	if err = c.actualLsRecursive(recursive, c.getFullPath(root), wrappingFunc); err != nil {
 		return err
 	}
+	batcher.flush()
 	if collect {
 		go func() {
 			// We know all eTags, purge other from mapper
