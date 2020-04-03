@@ -195,6 +195,10 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 // WithWebAuth adds auth wrappers to auth handlers
 func WithWebAuth() ServiceOption {
 	return func(o *ServiceOptions) {
+
+		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_POLICY, []string{}})
+		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_USER, []string{}})
+
 		o.webHandlerWraps = append(o.webHandlerWraps, func(handler http.Handler) http.Handler {
 			wrapped := servicecontext.NewMetricsHttpWrapper(handler)
 			wrapped = PolicyHttpWrapper(wrapped)

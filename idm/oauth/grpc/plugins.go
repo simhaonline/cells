@@ -72,10 +72,6 @@ func initialize(s service.Service) error {
 
 	dao := servicecontext.GetDAO(ctx).(sql.DAO)
 
-	// Configuration
-	auth.InitConfiguration(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
-	auth.RegisterGRPCProvider(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_OAUTH)
-
 	auth.OnConfigurationInit(func() {
 		var m []struct {
 			ID   string `"json:id"`
